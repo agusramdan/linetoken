@@ -8,5 +8,5 @@ public interface MultiLineTokenFilter {
     boolean isMatchStart(String value);
     boolean isMatchEnd(String value);
     boolean isMatchContent(String value);
-    int isMatchIndex(String value);
+    int getMatchIndex(String value);
 }

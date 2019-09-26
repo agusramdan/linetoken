@@ -1,7 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokenData;
+import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.FilterComplex;
 
 public class FilterComplexLineTokenHandler extends DefaultLineTokenHandler {

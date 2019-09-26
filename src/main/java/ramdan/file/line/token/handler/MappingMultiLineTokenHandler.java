@@ -1,8 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokenData;
-import ramdan.file.line.token.MultiLine;
+import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 
 import java.util.HashMap;
@@ -36,7 +35,7 @@ public class MappingMultiLineTokenHandler extends DefaultLineTokenHandler {
                 data[1]=startValue;
                 data[2]=endValue;
                 for (Map.Entry<String,String> entry: mapping.entrySet()) {
-                    int i = filter.isMatchIndex(entry.getKey());
+                    int i = filter.getMatchIndex(entry.getKey());
                     if(i>-1){
                         data[i+3]=entry.getValue();
                     }

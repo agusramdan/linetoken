@@ -1,9 +1,7 @@
 package ramdan.file.line.token.listener;
 
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokenData;
 import ramdan.file.line.token.filter.RegexMatchRule;
-import ramdan.file.line.token.handler.DefaultLineTokenHandler;
 import ramdan.file.line.token.handler.LineTokenHandler;
 
 public class RegexLineTokenListener implements LineTokenListener {

@@ -1,9 +1,12 @@
-package ramdan.file.line.token;
+package ramdan.file.line.token.data;
+
+import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.MultiLine;
 
 import java.util.Collection;
 import java.util.List;
 
-public class MultiLineData  extends LineTokenData implements MultiLine{
+public class MultiLineData  extends LineTokenData implements MultiLine {
     public final static MultiLineData EMPTY = new MultiLineData(null,null);
 
     public static MultiLineData newInstance(List<LineToken> list) {

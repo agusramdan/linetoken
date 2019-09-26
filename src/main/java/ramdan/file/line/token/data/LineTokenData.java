@@ -1,13 +1,21 @@
-package ramdan.file.line.token;
+package ramdan.file.line.token.data;
 
+import ramdan.file.line.token.Line;
+import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.StringSave;
+import ramdan.file.line.token.StringUtils;
 import ramdan.file.line.token.handler.ErrorHandlers;
 import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
+import java.io.File;
 import java.io.PrintStream;
+import java.lang.ref.SoftReference;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 
 /**
  * immutable class
+ * except source
  */
 public class LineTokenData implements LineToken {
 
@@ -16,32 +24,38 @@ public class LineTokenData implements LineToken {
     static boolean stringTrim = true;
     static boolean stringNullToEmpty=true;
 
-    static boolean equal(String p1,String p2){
-        if(p1== null){
-            return p2 == null;
-        }
-        return p2 != null && p1.equals(p2);
+    public static LineTokenData parse(String parseRule , Line line){
+        LineTokenData lt = parse(line.getSource(),parseRule,line.getNo(),line.toString());
+        lt.setSource(line);
+        return lt;
     }
-
-    static boolean equalIgnoreCase(String p1,String p2){
-        if(p1== null){
-            return p2 == null;
-        }
-        return p2 != null && p1.equalsIgnoreCase(p2);
+    public static LineTokenData parse(Line line){
+        return parse("\\|",line);
     }
-
     public static LineTokenData parse(String line){
         return parse("\\|",null,line);
     }
-
     public static LineTokenData parse(Integer lineNo, String line){
         return parse("\\|",lineNo,line);
     }
-
-    public static LineTokenData parse(String parseRule, Integer lineNo, String line){
-        return line ==null? newInstance(lineNo):newInstance(lineNo,line.split(parseRule));
+    public static LineTokenData parse(File file, Integer lineNo, String line){
+        return parse(file,"\\|",lineNo,line);
     }
 
+    public static LineTokenData parse(File file,String parseRule, Integer lineNo, String line){
+        String filename = file!= null ? file.getName():null;
+        return line ==null?
+                newInstance(filename,lineNo):
+                newInstance(filename,lineNo,line.split(parseRule));
+    }
+    public static LineTokenData parse(String parseRule, Integer lineNo, String line){
+        return line ==null?
+                newInstance(lineNo):
+                newInstance(lineNo,line.split(parseRule));
+    }
+    public static LineTokenData newInstance(String file ,Integer line, String ... tokens){
+        return new LineTokenData(file,line,tokens);
+    }
     public static LineTokenData newInstance(Integer line, String ... tokens){
         return new LineTokenData(line,tokens);
     }
@@ -65,10 +79,11 @@ public class LineTokenData implements LineToken {
             }
         }
     }
-
-    private Integer start;
-    private Integer end;
-    private String[] tokens;
+    private final String file;
+    private final Integer start;
+    private final Integer end;
+    private final String[] tokens;
+    private WeakReference<Line> source;
 
     private String token(String t){
         if (t == null){
@@ -79,7 +94,7 @@ public class LineTokenData implements LineToken {
             if(stringTrim){
                 t = t.trim();
             }
-            t=StringSave.save(t);
+            t= StringSave.save(t);
         }
         return t;
     }
@@ -87,6 +102,13 @@ public class LineTokenData implements LineToken {
         this(line,line,tokens);
     }
     LineTokenData(Integer start,Integer end , String ... tokens){
+        this(null,start,end,tokens);
+    }
+    LineTokenData(String file,Integer line , String ... tokens){
+        this(file,line,line,tokens);
+    }
+    LineTokenData(String file,Integer start,Integer end , String ... tokens){
+        this.file = file;
         this.start=start;
         this.end=end;
         if(tokens==null){
@@ -100,7 +122,6 @@ public class LineTokenData implements LineToken {
             idx ++;
         }
     }
-
     public Integer getStart() {
         return start;
     }
@@ -113,6 +134,14 @@ public class LineTokenData implements LineToken {
         return tokens.length;
     }
 
+    public Line getSource(){
+        return source!=null?source.get():null;
+    }
+    public void setSource(Line line){
+        if(source==null){
+            source = new WeakReference<>(line);
+        }
+    }
     /**
      * Return empty string
      * @param index
@@ -150,55 +179,32 @@ public class LineTokenData implements LineToken {
      */
     public boolean equal(int index, String ... parameter){
         String chek = get(index);
-        for (String p: parameter) {
-            if(equal(chek,p))return true;
-        }
-        return false;
+        return StringUtils.equal(chek,parameter);
     }
 
     public boolean equalIgnoreCase(int index, String ... parameter){
         String chek = get(index);
-        for (String p: parameter) {
-            if(equalIgnoreCase(chek,p))return true;
-        }
-        return false;
+        return StringUtils.equalIgnoreCase(chek,parameter);
     }
 
     public boolean contain(int index, String ... parameter){
         String chek = get(index);
-        if(chek == null) return false;
-        for (String p: parameter) {
-            if(chek.contains(p))return true;
-        }
-        return false;
+        return StringUtils.contain(chek,parameter);
     }
 
     public boolean containAll(int index, String ... parameter){
         String chek = get(index);
-        if(chek == null) return false;
-        for (String p: parameter) {
-            if(!chek.contains(p))return false;
-        }
-        return true;
+        return StringUtils.containAll(chek,parameter);
     }
 
     public boolean containIgnoreCase(int index, String ... parameter){
         String chek = get(index);
-        if(chek == null) return false;
-        for (String p: parameter) {
-            if(chek.contains(p))return true;
-        }
-        return false;
+        return StringUtils.containIgnoreCase(chek,parameter);
     }
 
     public boolean containAllIgnoreCase(int index, String ... parameter){
         String chek = get(index);
-        if(chek == null) return false;
-        chek = chek.toUpperCase();
-        for (String p: parameter) {
-            if(!chek.contains(p.toUpperCase()))return false;
-        }
-        return true;
+        return StringUtils.containAllIgnoreCase(chek,parameter);
     }
 
     public LineToken replaceToken(int index, String token){
@@ -219,6 +225,9 @@ public class LineTokenData implements LineToken {
             }
 
             if(printLine) {
+                if(file!=null){
+                    ps.printf("%s:", file);
+                }
                 if(start!= null){
                     if( end==null|| start.equals(end))
                         ps.printf("%06d:", start);

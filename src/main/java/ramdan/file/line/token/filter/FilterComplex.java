@@ -1,6 +1,6 @@
 package ramdan.file.line.token.filter;
 
-import ramdan.file.line.token.LineTokenData;
+import ramdan.file.line.token.data.LineTokenData;
 
 import java.io.*;
 import java.util.ArrayList;

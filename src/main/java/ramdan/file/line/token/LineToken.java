@@ -8,6 +8,7 @@ public interface LineToken {
     Integer getStart() ;
     Integer getEnd();
     int length();
+    Line getSource();
     String get(int index);
     int getInt(int index);
     int getInt(int index, IntegerConversionErrorHandler handler);

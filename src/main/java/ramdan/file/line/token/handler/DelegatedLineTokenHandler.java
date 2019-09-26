@@ -11,7 +11,13 @@ public class DelegatedLineTokenHandler implements LineTokenHandler {
         if(handlers==null||handlers.length==0) return new LineTokenHandler[0];
         LineTokenHandler[] warpHandler = new LineTokenHandler[handlers.length];
         for (int i = 0; i < handlers.length; i++) {
-            warpHandler[i]= new MultilineLineTokenHandler(handlers[i]);
+            if(handlers[i]==null|| handlers[i] == DefaultLineTokenHandler.DEFAULT_LINE_TOKEN_HANDLER){
+                warpHandler[i] = DefaultLineTokenHandler.DEFAULT_LINE_TOKEN_HANDLER;
+            }else if (handlers[i].supportMultiLine()){
+                warpHandler[i]= handlers[i];
+            }else {
+                warpHandler[i]= new MultilineLineTokenHandler(handlers[i]);
+            }
         }
         return warpHandler;
     }

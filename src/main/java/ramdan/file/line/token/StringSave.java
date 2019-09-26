@@ -62,6 +62,7 @@ public class StringSave {
         out.println("Cache Statistic");
         out.printf("Count Token         : %16d \n", tokenCount);
         out.printf("Size Token          : %16d \n", tokenSize);
+        out.println();
     }
 
     public static void args(String ... args){

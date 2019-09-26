@@ -1,9 +1,13 @@
 package ramdan.file.line.token;
+import ramdan.file.line.token.data.LineData;
+import ramdan.file.line.token.data.LineTokenData;
+import ramdan.file.line.token.data.Statistic;
 import ramdan.file.line.token.filter.FilterComplex;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 import ramdan.file.line.token.filter.RegexMatchRule;
 import ramdan.file.line.token.handler.*;
-import ramdan.file.vfree.InvoiceHandlerFactory;
+import ramdan.file.line.token.listener.LineListener;
+import ramdan.file.line.token.listener.LineTokenHandlerLineListener;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -11,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class Main {
+    public static Main main = new Main();
 
     private Map<String,String> parameters = new HashMap<>();
     private List<LineToken> lineTokenHolder ;
@@ -18,6 +23,8 @@ public class Main {
     private Map<String,String> mappingRule;
     private PrintStream output;
     private Statistic statistic;
+    private HandlerFactory handlerFactory;
+    private FilterComplex filterComplex;
     /**
      * Populate Argument
      * -i         : input directory of file
@@ -34,17 +41,12 @@ public class Main {
      * -fc        : filter complex
      * -fx        : filter regex
      * -filter    :
+     * -hf        : handler factory
+     * -hfcfg     | file config for handler factory
      * -df        : distribution file to multiple directory method copy2,move ex. copy,move
      * -dfn       : pre neame drectory ex: P  (optional)
      * -max       : partition max length in byte per parition(optional with default 6gb)
      */
-    private boolean equalOnce(String param,String ...compare){
-        for (String c: compare) {
-            if(param.equals(c)) return true;
-        }
-        return false;
-    }
-
     public void args(String ... args){
         String param = null;
         int count = 0;
@@ -55,7 +57,7 @@ public class Main {
             }else
             if(arg.startsWith("-")){
                 param = arg;
-                if(equalOnce(param,"-trim","-save", "-empty","-intern","-statistic","-hold", "-silent")){
+                if(StringUtils.equalOnce(param,"-trim","-save", "-empty","-intern","-statistic","-hold", "-silent")){
                     parameters.put(param,"true");
                     param = null;
                 }else
@@ -76,6 +78,9 @@ public class Main {
         StringSave.args(args);
         LineTokenData.args(args);
     }
+    public String getArgumentParameter(String key){
+        return this.parameters.get(key);
+    }
     private void process() throws IOException {
         process(null);
     }
@@ -83,22 +88,23 @@ public class Main {
         process(input,null);
     }
     void process(File input,File output) throws IOException {
-        InputStreamReader reader = input!=null? new FileReader(input) : new InputStreamReader(System.in);
         List<LineTokenHandler> list = new ArrayList<>();
-        HandlerFactory handlerFactory = new InvoiceHandlerFactory();
+
         if(statistic!=null){
+            statistic.add(input);
             list.add(new StatisticLineTokenHandler(statistic));
         }
-        list.add(handlerFactory.getStartLineTokenHandler());
+        if(handlerFactory != null) {
+            list.add(handlerFactory.getStartLineTokenHandler());
+        }
         if(parameters.containsKey("-fcs")){
             String cls =parameters.get("-fcs");
             addFilterHandlers(list,cls);
         }
-        if(parameters.containsKey("-fc")){
-            //String cls =parameters.get("-fc");
-            File file = new File(parameters.get("-fc"));
-            list.add(new FilterComplexLineTokenHandler(FilterComplex.read(file)));
+        if(filterComplex!=null){
+            list.add(new FilterComplexLineTokenHandler(filterComplex));
         }
+
 
         if(parameters.containsKey("-fx")){
             list.add(new RegexLineTokenHandler(parameters.get("-fx")));
@@ -127,18 +133,81 @@ public class Main {
             list.add(new ListLineTokenHandler(lineTokenHolder));
         }
 
-
-        if(output !=null){
-            list.add(new PrintStreamLineTokenHandler(new PrintStream(output)));
-        }else if(this.output!=null){
-            list.add(new PrintStreamLineTokenHandler(this.output));
+        if(handlerFactory!=null){
+            list.add(handlerFactory.getEndLineTokenHandler());
         }
-        list.add(handlerFactory.getFinallyLineTokenHandler());
-        process(reader,new DelegatedLineTokenHandler(list));
+
+        PrintStream printStream = null;
+        OutputLineTokenHandler outputLineTokenHandler = null;
+        try {
+            LineTokenHandler outputHandler= null;
+            if (handlerFactory != null) {
+                outputHandler = handlerFactory.getOutputLineTokenHandler();
+            }
+            if(outputHandler == null){
+                if (output != null) {
+                    printStream = new PrintStream(output);
+                    outputHandler = new PrintStreamLineTokenHandler(new PrintStream(output));
+                } else if (this.output != null) {
+                    outputHandler = new PrintStreamLineTokenHandler(this.output);
+                }
+            }
+            if(outputHandler!=null){
+                if(outputHandler instanceof OutputLineTokenHandler){
+                    outputLineTokenHandler = (OutputLineTokenHandler) outputHandler;
+                    outputLineTokenHandler.setFileOutput(output);
+                    outputLineTokenHandler.setFileInput(input);
+                    String directory = parameters.get("-o");
+                    if (directory != null) {
+                        outputLineTokenHandler.setBaseDirectoryOutput(new File(directory));
+                    }
+                    if(input != null) {
+                        directory = parameters.get("-i");
+                        if (directory != null) {
+                            outputLineTokenHandler.setBaseDirectoryInput(new File(directory));
+                        }
+                    }
+                }
+                list.add(outputHandler);
+            }
+            if (handlerFactory != null) {
+                list.add(handlerFactory.getFinallyLineTokenHandler());
+            }
+            LineTokenHandler handler = new DelegatedLineTokenHandler(list);
+            LineListener listener = new LineTokenHandlerLineListener(handler);
+            if(input != null){
+                StreamUtils.readLine(input,listener);
+            }else {
+                StreamUtils.readLine(System.in,listener);
+            }
+
+        }finally{
+            if(outputLineTokenHandler != null){
+                outputLineTokenHandler.flush();
+            }
+            flushIgnore(printStream);
+            closeIgnore(outputLineTokenHandler);
+            closeIgnore(printStream);
+        }
+    }
+    void flushIgnore(PrintStream closeable)   {
+        if(closeable !=null){
+            closeable.flush();
+        }
+    }
+    void closeIgnore(Closeable closeable)   {
+        if(closeable !=null){
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                ;
+            }
+        }
     }
     private Map <String,Object> cacheInstance = new HashMap<>();
 
     private Object getInstance(String c){
+        if(c == null || c.isEmpty()) return null;
         Object obj =null;
         if(cacheInstance.containsKey(c)){
             obj = cacheInstance.get(c);
@@ -148,7 +217,9 @@ public class Main {
                 obj = Class.forName(c).newInstance();
                 if(obj instanceof FilterComplex||
                         obj instanceof RegexMatchRule||
-                        obj instanceof MultiLineTokenFilter){
+                        obj instanceof MultiLineTokenFilter||
+                        obj instanceof HandlerFactory
+                ){
                     cacheInstance.put(c,obj);
                 }
             } catch (Exception e) {
@@ -157,6 +228,12 @@ public class Main {
         }
         return obj;
     }
+    private HandlerFactory getHandlerFactory(String c){
+        Object obj = getInstance(c);
+        return (obj instanceof HandlerFactory)
+        ? (HandlerFactory) obj:null;
+    }
+
     private void addFilterHandlers(List<LineTokenHandler> list, String cls)  {
         String[] clss = cls.split(",");
         for (String c: clss) {
@@ -186,13 +263,7 @@ public class Main {
         }
     }
 
-    void process(InputStreamReader streamReader, LineTokenHandler handler) throws IOException {
-        LineNumberReader reader = new LineNumberReader(streamReader);
-        String line;
-        while ((line =reader.readLine())!=null){
-            handler.process(LineTokenData.parse(reader.getLineNumber(),line));
-        }
-    }
+
 
     List<File> listFilesRecursive(File file,FileFilter fileFilter){
         List<File> fileList = new ArrayList<>();
@@ -223,6 +294,7 @@ public class Main {
     }
     void distributionFile(final  File directoryInput,final File directoryOutput) throws IOException {
         String df = parameters.get("-df");
+        boolean silent = Boolean.valueOf(parameters.get("-silent"));
         List<File> fileList = listFilesRecursive(directoryInput, new ExtensionFileFilter(parameters.get("-ix")));
         long maxLength = Long.MAX_VALUE;
         /**
@@ -231,15 +303,35 @@ public class Main {
         if(df.startsWith("sample")){
             String length = df.substring(6);
             maxLength = parseLength(length);
+            if(!silent){
+                System.out.printf("sample %d byte  %s -> %s \n",maxLength, directoryInput,directoryOutput);
+            }
             long sumLength = 0;
-            int idx = 0;
-            while (sumLength < maxLength && idx < fileList.size()){
+            int count = 0;
+            for (int idx = 0;sumLength < maxLength && idx < fileList.size();idx++){
                 File file = fileList.get(idx);
                 if(file.length()+sumLength< maxLength){
                     sumLength +=file.length();
-                    File target = new File(directoryOutput,relativize(directoryInput,file));
+                    String relativ = relativize(directoryInput,file);
+                    File target = new File(directoryOutput,relativ);
+                    File parent =target.getParentFile();
+                    if(!parent.exists()){
+                        if(!parent.mkdirs()){
+                            if(!silent){
+                                System.out.printf("fail mkdir %s \n",parent);
+                            }
+                        }
+                    }
+
+                    if(!silent){
+                        System.out.printf("copy %d size  %s \n",file.length(),relativ);
+                    }
                     copy(file,target);
+                    count ++;
                 }
+            }
+            if(!silent){
+                System.out.printf("copy %d files,  %d bytes \n",count,sumLength);
             }
         }
 
@@ -250,11 +342,21 @@ public class Main {
             statistic = new Statistic();
             statistic.setInput(parameters.get("-i"));
             statistic.setInputExt(parameters.get("-ix"));
+            statistic.setOutput(parameters.get("-o"));
         }
         if(Boolean.parseBoolean(parameters.get("-hold"))){
             lineTokenHolder = new ArrayList<>();
         }
-
+        if(parameters.containsKey("-hf")){
+            handlerFactory=getHandlerFactory(parameters.get("-hf"));
+            if(handlerFactory!= null){
+                handlerFactory.loadConfig(parameters.get("-hfcfg"));
+            }
+        }
+        if(parameters.containsKey("-fc")){
+            File file = new File(parameters.get("-fc"));
+            filterComplex = FilterComplex.read(file);
+        }
         if(input !=null && input.isDirectory()){
             List<File> fileList = listFilesRecursive(input,  new ExtensionFileFilter(parameters.get("-ix")));
 
@@ -269,7 +371,6 @@ public class Main {
                 File fileOutput = isDirectoryOutput
                         ?new File(output,input.getName())
                         :output;
-
                 process(input,fileOutput);
             }else{
                 process();
@@ -277,14 +378,13 @@ public class Main {
         }
         if(statistic!=null) {
             this.statistic.print(System.out);
-
         }
     }
 
     private String relativize(File input, File fileInput) {
         Path inputPathParent = input.toPath();
         Path fileInputPath = fileInput.getParentFile().toPath();
-        Path path = fileInputPath.relativize(inputPathParent);
+        Path path = inputPathParent.relativize(fileInputPath);
         return Paths.get(path.toString(),fileInput.getName()).toString();
     }
 
@@ -324,7 +424,6 @@ public class Main {
     }
 
     public static void main(String ... args) throws IOException {
-        Main main = new Main();
         main.args(args);
         main.run();
     }
@@ -357,4 +456,3 @@ public class Main {
     }
 
 }
-
