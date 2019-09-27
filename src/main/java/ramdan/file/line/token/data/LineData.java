@@ -6,7 +6,6 @@ import ramdan.file.line.token.StringUtils;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 
 /**
