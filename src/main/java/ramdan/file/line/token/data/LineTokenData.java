@@ -83,7 +83,7 @@ public class LineTokenData implements LineToken {
     private final Integer start;
     private final Integer end;
     private final String[] tokens;
-    private WeakReference<Line> source;
+    private Line source;
 
     private String token(String t){
         if (t == null){
@@ -135,11 +135,11 @@ public class LineTokenData implements LineToken {
     }
 
     public Line getSource(){
-        return source!=null?source.get():null;
+        return source;
     }
     public void setSource(Line line){
         if(source==null){
-            source = new WeakReference<>(line);
+            source = line;
         }
     }
     /**
@@ -167,7 +167,7 @@ public class LineTokenData implements LineToken {
 
     public boolean isEmpty(int index){
         String chek = get(index);
-        return chek==null || "".equals(chek);
+        return StringUtils.isEmpty(chek);
     }
 
     /**
