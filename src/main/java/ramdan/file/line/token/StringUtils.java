@@ -65,4 +65,12 @@ public class StringUtils {
         }
         return true;
     }
+
+    public static boolean notEmpty(String value) {
+        return value!=null && !"".equals(value);
+    }
+
+    public static boolean isEmpty(String value) {
+        return value==null || "".equals(value);
+    }
 }
