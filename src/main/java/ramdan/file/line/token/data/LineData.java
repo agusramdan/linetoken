@@ -12,6 +12,7 @@ import java.lang.ref.WeakReference;
  * immutable class
  */
 public class LineData implements Line {
+
     private File source;
     private int no;
     private String line;
@@ -49,6 +50,11 @@ public class LineData implements Line {
     @Override
     public boolean isEmpty() {
         return line==null || line.isEmpty();
+    }
+
+    @Override
+    public boolean isEOF() {
+        return line==null;
     }
 
     @Override

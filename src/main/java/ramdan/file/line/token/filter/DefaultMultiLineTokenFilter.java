@@ -2,19 +2,20 @@ package ramdan.file.line.token.filter;
 
 
 /**
- * Multiline menjadi 1 line
+ * Immutable class
+ *
  */
 public class DefaultMultiLineTokenFilter implements MultiLineTokenFilter {
     private final String name;
     private final RegexMatchRule start;
     private final RegexMatchRule end;
-    private final String[] content;
+    private final RegexMatchRule[] content;
 
     public DefaultMultiLineTokenFilter(String name, String start, String end, String ... content) {
         this.name = name;
         this.start = new RegexMatchRule(start);
         this.end = new  RegexMatchRule(end);
-        this.content = content;
+        this.content = RegexMatchRule.rule(content);
     }
     public String name(){
         return name;
@@ -29,8 +30,8 @@ public class DefaultMultiLineTokenFilter implements MultiLineTokenFilter {
         return end.isMatchRule(value);
     }
     public boolean isMatchContent(String value){
-        for(String t : content){
-            if(t.equals(value)){
+        for(RegexMatchRule t : content){
+            if(t.isMatchRule(value)){
                 return true;
             }
         }
@@ -38,7 +39,7 @@ public class DefaultMultiLineTokenFilter implements MultiLineTokenFilter {
     }
     public int getMatchIndex(String value){
         for(int index = 0 ; index<content.length; index++){
-            if(content[index].equals(value))
+            if(content[index].isMatchRule(value))
                 return index;
         }
         return -1;
