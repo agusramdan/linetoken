@@ -1,0 +1,255 @@
+package ramdan.file.line.token.data;
+
+import ramdan.file.line.token.Line;
+import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.StringSave;
+import ramdan.file.line.token.StringUtils;
+import ramdan.file.line.token.handler.ErrorHandlers;
+import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
+
+import java.io.File;
+import java.io.PrintStream;
+import java.util.Arrays;
+
+/**
+ * immutable class
+ * except source
+ */
+public abstract class LineTokenAbstract implements LineToken {
+    static boolean stringTrim = true;
+    static boolean stringNullToEmpty=true;
+    public static String get(LineToken  token , int idx){
+        if(token == null){
+            return stringNullToEmpty?"":null;
+        }
+        return token.get(idx);
+    }
+    public static String tokenCheck(String t){
+        if (t == null){
+            if(stringNullToEmpty){
+                t = "";
+            }
+        }
+        return t;
+    }
+    public static String token(String t){
+        if (t == null){
+            if(stringNullToEmpty){
+                t = "";
+            }
+        }else{
+            if(stringTrim){
+                t = t.trim();
+            }
+            t= StringSave.save(t);
+        }
+        return t;
+    }
+    public static void args(String ... args){
+        for (String arg : args) {
+            if( "-empty".equals(arg)){
+                stringNullToEmpty = true;
+            }else if("-null".equals(arg)){
+                stringNullToEmpty=false;
+            }else if( "-trim".equals(arg)){
+                stringTrim = true;
+            }else if("-notrim".equals(arg)){
+                stringTrim = false;
+            }
+        }
+    }
+    private String file;
+    private Integer start;
+    private Integer end;
+
+    public LineTokenAbstract() {
+    }
+    public LineTokenAbstract(LineToken lineToken) {
+        setFileName(lineToken.getFileName());
+        setStart(lineToken.getStart());
+        setEnd(lineToken.getEnd());
+    }
+    public String getFileName() {
+        return file;
+    }
+
+    protected void setFileName(String file) {
+        if(StringUtils.notEmpty(file)) {
+            this.file = file;
+        }
+    }
+
+    @Override
+    public Integer getStart() {
+        return start;
+    }
+
+    protected void setStart(Integer start) {
+        if(start == null || start < 0) return;
+        if(this.start ==null){
+            this.start = start;
+        }else{
+            this.start = Math.min(this.start,start);
+        }
+    }
+
+    @Override
+    public Integer getEnd() {
+        return end;
+    }
+
+    protected void setEnd(Integer end) {
+        if(end == null || end < 0) return;
+        if(this.end ==null){
+            this.end = end;
+        }else{
+            this.end = Math.max(this.end,end);
+        }
+    }
+
+    public int getInt(int index){
+        return getInt(index, ErrorHandlers.INTEGER_CONVERSION_ERROR_HANDLER);
+    }
+
+    public int getInt(int index, IntegerConversionErrorHandler handler){
+        String value = get(index);
+        try {
+            return Integer.valueOf(value);
+        }catch(Exception e){
+            return handler.handle(value);
+        }
+    }
+
+    public boolean isEmpty(int index){
+        String chek = get(index);
+        return StringUtils.isEmpty(chek);
+    }
+
+    /**
+     * equal one of parameter
+     *
+     * @param index
+     * @param parameter
+     * @return
+     */
+    public boolean equal(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.equal(chek,parameter);
+    }
+
+    public boolean equalIgnoreCase(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.equalIgnoreCase(chek,parameter);
+    }
+
+    public boolean contain(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.contain(chek,parameter);
+    }
+
+    public boolean containAll(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.containAll(chek,parameter);
+    }
+
+    public boolean containIgnoreCase(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.containIgnoreCase(chek,parameter);
+    }
+
+    public boolean containAllIgnoreCase(int index, String ... parameter){
+        String chek = get(index);
+        return StringUtils.containAllIgnoreCase(chek,parameter);
+    }
+
+    public void println(PrintStream ps){
+        println(ps,"|",true);
+    }
+
+    public void printLine(PrintStream ps){
+
+        if(file!=null){
+            ps.printf("%s:", file);
+        }
+        if(start!= null){
+            if( end==null|| start.equals(end))
+                ps.printf("%06d:", start);
+            else
+                ps.printf("%06d->%06d:", start,end);
+        }else if(end !=null){
+            ps.printf("%06d:", end);
+        }
+    }
+    public void println(PrintStream ps, String delimiter,boolean printLine){
+        int size = length();
+        if(size > 0){
+            if(delimiter == null || "".equals(delimiter)){
+                delimiter = "|";
+            }
+
+            if(printLine) {
+                printLine(ps);
+            }
+            for (int i = 0; i < size; i++) {
+                String value = get(i);
+                if(!"".equals(value)){
+                    ps.print(value);
+                }else{
+                    ps.print(" ");
+                }
+                ps.print(delimiter);
+
+            }
+            ps.println();
+        }
+    }
+
+    public void fixPrintln(PrintStream ps,int ... spaces){
+        int size = length();
+        if(size > 0){
+            for (int i = 0; i < spaces.length; i++) {
+                if(spaces[i]!=0) {
+                    String value = get(i);
+                    String data = size> i && value!=null?value:"";
+                    int abs = Math.abs(spaces[i]);
+                    if(data.length()>abs){
+                        ps.print(data.substring(0,abs));
+                    }else {
+                        ps.printf("%" + (-1 * spaces[i]) + "s", data);
+                    }
+                }
+            }
+            ps.println();
+        }
+    }
+    @Override
+    public LineToken replaceToken(int index, String token) {
+        throw new RuntimeException("not support function replace Token");
+    }
+
+    @Override
+    public String[] copy(int idxStart) {
+        throw new RuntimeException("not support function replace Token");
+    }
+
+    @Override
+    public void arraycopy(int sourceIdxStart, String[] destination, int destinationIndexStart, int lengthCopy) {
+        throw new RuntimeException("not support function replace Token");
+    }
+
+    public boolean isEOF(){
+        return false;
+    }
+
+
+//    public String[] copy(int idxStart){
+//        String[] result = new String[length()-idxStart];
+//        System.arraycopy(tokens,idxStart,result, 0, result.length);
+//        return result;
+//    }
+//    public void arraycopy(int idxStart,String[] result,int idxResultStart,int length){
+//        length = Math.min(tokens.length-idxStart,length);
+//        length = Math.min(result.length-idxResultStart,length);
+//        System.arraycopy(tokens,idxStart,result, idxResultStart, length);
+//    }
+}

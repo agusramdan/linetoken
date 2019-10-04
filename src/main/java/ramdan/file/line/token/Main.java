@@ -42,8 +42,8 @@ public class Main {
      * -fx        : filter regex
      * -filter    :
      * -hf        : handler factory
-     * -hfcfg     | file config for handler factory
-     * -df        : distribution file to multiple directory method copy2,move ex. copy,move
+     * -hfcfg     : file config for handler factory
+     * -df        : distribution file to multiple directory method copy,move ex. copy,move,sample,
      * -dfn       : pre neame drectory ex: P  (optional)
      * -max       : partition max length in byte per parition(optional with default 6gb)
      */
@@ -104,7 +104,6 @@ public class Main {
         if(filterComplex!=null){
             list.add(new FilterComplexLineTokenHandler(filterComplex));
         }
-
 
         if(parameters.containsKey("-fx")){
             list.add(new RegexLineTokenHandler(parameters.get("-fx")));
@@ -176,7 +175,12 @@ public class Main {
             LineTokenHandler handler = new DelegatedLineTokenHandler(list);
             LineListener listener = new LineTokenHandlerLineListener(handler);
             if(input != null){
-                StreamUtils.readLine(input,listener);
+                String fileName=input.getName();
+                if(fileName.endsWith(".gz")||fileName.endsWith(".zip")){
+                    StreamUtils.readLineGzip(input,listener);
+                }else {
+                    StreamUtils.readLine(input,listener);
+                }
             }else {
                 StreamUtils.readLine(System.in,listener);
             }
@@ -278,20 +282,7 @@ public class Main {
         }
         return fileList;
     }
-    long parseLength(String str){
-        long pengali = 1;
-        if(str.endsWith("k")){
-            pengali = 1024;
-            str = str.replace("g","").trim();
-        }else if(str.endsWith("m")){
-            pengali = 1024*1024;
-            str = str.replace("m","").trim();
-        } if(str.endsWith("g")){
-            pengali = 1024*1024*1024;
-            str = str.replace("g","").trim();
-        }
-        return Long.parseLong(str)*pengali;
-    }
+
     void distributionFile(final  File directoryInput,final File directoryOutput) throws IOException {
         String df = parameters.get("-df");
         boolean silent = Boolean.valueOf(parameters.get("-silent"));
@@ -300,9 +291,9 @@ public class Main {
         /**
          * Get sample data and copy to directory
          */
-        if(df.startsWith("sample")){
+        if(df.matches("sample\\d*\\w*")){
             String length = df.substring(6);
-            maxLength = parseLength(length);
+            maxLength = StringUtils.parseLength(length);
             if(!silent){
                 System.out.printf("sample %d byte  %s -> %s \n",maxLength, directoryInput,directoryOutput);
             }
@@ -312,7 +303,7 @@ public class Main {
                 File file = fileList.get(idx);
                 if(file.length()+sumLength< maxLength){
                     sumLength +=file.length();
-                    String relativ = relativize(directoryInput,file);
+                    String relativ = StreamUtils.relative(directoryInput,file);
                     File target = new File(directoryOutput,relativ);
                     File parent =target.getParentFile();
                     if(!parent.exists()){
@@ -362,7 +353,7 @@ public class Main {
 
             for (File fileInput:fileList) {
                 File fileOutput =isDirectoryOutput
-                        ?new File(output,relativize(input,fileInput))
+                        ?new File(output,StreamUtils.relative(input,fileInput))
                         :output;
                 process(fileInput,fileOutput);
             }
@@ -381,12 +372,6 @@ public class Main {
         }
     }
 
-    private String relativize(File input, File fileInput) {
-        Path inputPathParent = input.toPath();
-        Path fileInputPath = fileInput.getParentFile().toPath();
-        Path path = inputPathParent.relativize(fileInputPath);
-        return Paths.get(path.toString(),fileInput.getName()).toString();
-    }
 
     public void runNoFileInput(){
         List<String> list = new ArrayList<>();

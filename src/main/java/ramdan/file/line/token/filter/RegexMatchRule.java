@@ -1,6 +1,7 @@
 package ramdan.file.line.token.filter;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.config.Config;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -8,7 +9,7 @@ import java.util.regex.Pattern;
 /**
  * Created by agusramdan on 1/4/19.
  */
-public class RegexMatchRule implements LineTokenFilter{
+public class RegexMatchRule implements LineTokenFilter, Config {
     public static RegexMatchRule[] rule(String ... regex){
         if(regex == null) return new RegexMatchRule[0];
         RegexMatchRule [] rules = new RegexMatchRule[regex.length];

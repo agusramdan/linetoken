@@ -1,14 +1,17 @@
 package ramdan.file.line.token.filter;
 
+import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.config.Config;
 import ramdan.file.line.token.data.LineTokenData;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilterComplex {
-
+public class FilterComplex implements Config {
+    public static final String FILTER_COMPLEX="FILTER_COMPLEX";
     public static final boolean REMOVE = true;
+
     public static FilterComplex read(File file) throws IOException {
         BuilderLineToken blt = null ;
         try(InputStreamReader isr = new FileReader(file);
@@ -16,6 +19,8 @@ public class FilterComplex {
             String line;
             while ((line = br.readLine())!= null){
                 if(line.startsWith("#")) continue;
+                LineToken lineToken = LineTokenData.parse(line);
+                if(!lineToken.equal(0,FILTER_COMPLEX)) continue;
                 blt = new BuilderLineToken(LineTokenData.parse(line));
                 readChild(blt,br);
             }
@@ -32,15 +37,17 @@ public class FilterComplex {
     public static BuilderLineToken readChild(BuilderLineToken parent,BufferedReader br) throws IOException {
         String line;
         BuilderLineToken blt = null;
-        int parentLevel= parent.token.getInt(0);
+        int parentLevel= parent.token.getInt(1);
         BuilderLineToken sibling = parent.childsBuilder.isEmpty()?null:parent.childsBuilder.get(parent.childsBuilder.size()-1);
         while ((line = br.readLine())!= null){
             if(line.startsWith("#")) continue;
-            blt = new BuilderLineToken(LineTokenData.parse(line));
-            if(blt.token.getInt(0)<=parentLevel){
+            LineToken lineToken = LineTokenData.parse(line);
+            if(!lineToken.equal(0,FILTER_COMPLEX))continue;
+            blt = new BuilderLineToken(lineToken);
+            if(blt.token.getInt(1)<=parentLevel){
                 return blt;
             }
-            if(sibling ==null || sibling.token.getInt(0)==blt.token.getInt(0)){
+            if(sibling ==null || sibling.token.getInt(1)==blt.token.getInt(1)){
                 sibling = blt;
                 parent.childsBuilder.add(blt);
                 blt = null;
@@ -51,7 +58,7 @@ public class FilterComplex {
             }
             // if child
             if(blt==null)return null;
-            if(sibling.token.getInt(0)==blt.token.getInt(0)){
+            if(sibling.token.getInt(1)==blt.token.getInt(1)){
                 sibling = blt;
                 parent.childsBuilder.add(blt);
                 blt = null;
@@ -65,7 +72,6 @@ public class FilterComplex {
     public FilterComplex(String start, String end,  boolean remove) {
         this(null,new RegexMatchRule(start),new RegexMatchRule(end),remove,new RegexMatchRule[0]);
     }
-
     public FilterComplex(String start, String end,  FilterComplex... childs) {
         this(null,new RegexMatchRule(start),new RegexMatchRule(end),false,new RegexMatchRule[0]);
     }
@@ -156,10 +162,10 @@ public class FilterComplex {
      * builder form line token
      */
     static class BuilderLineToken{
-        LineTokenData token;
+        LineToken token;
         List<BuilderLineToken> childsBuilder = new ArrayList<>();
 
-        public BuilderLineToken(LineTokenData token) {
+        public BuilderLineToken(LineToken token) {
             this.token = token;
         }
 
@@ -169,9 +175,9 @@ public class FilterComplex {
                 list.add(blt.build());
             }
             boolean remove = token.length() <= 3 && list.isEmpty();
-            return remove ? new FilterComplex(token.get(1),token.get(2),REMOVE)
-                    : new FilterComplex(token.get(1),token.get(2),
-                     RegexMatchRule.rule(token.copy(3)),
+            return remove ? new FilterComplex(token.get(2),token.get(3),REMOVE)
+                    : new FilterComplex(token.get(2),token.get(3),
+                     RegexMatchRule.rule(token.copy(4)),
                     list.toArray(new FilterComplex[list.size()]));
 
         }

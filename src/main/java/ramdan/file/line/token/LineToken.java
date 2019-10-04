@@ -5,10 +5,12 @@ import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 import java.io.PrintStream;
 
 public interface LineToken {
+    String getFileName();
     Integer getStart() ;
     Integer getEnd();
     int length();
     Line getSource();
+    boolean isEOF();
     String get(int index);
     int getInt(int index);
     int getInt(int index, IntegerConversionErrorHandler handler);
@@ -20,6 +22,7 @@ public interface LineToken {
     boolean containIgnoreCase(int index, String ... parameter);
     boolean containAllIgnoreCase(int index, String ... parameter);
     LineToken replaceToken(int index, String token);
+    void printLine(PrintStream ps);
     void println(PrintStream ps);
     void println(PrintStream ps, String delimiter,boolean printLine);
     void fixPrintln(PrintStream ps,int ... spaces);

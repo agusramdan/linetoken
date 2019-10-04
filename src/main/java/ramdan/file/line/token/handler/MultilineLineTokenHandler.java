@@ -27,18 +27,22 @@ public class MultilineLineTokenHandler implements LineTokenHandler {
 
     public MultiLineData processMultiLine(MultiLine lineToken){
         int size = lineToken.sizeLine();
-        Integer start = null;
-        Integer end = null;
         List<LineToken> holder = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            LineToken line = processLine(lineToken.index(i));
-            if(line.length()>0){
+            LineToken line = lineToken.index(i);
+            if(line != null){
+                line= processLine(line);
+            }else {
+                continue;
+            }
+            if(line==null){
+                continue;
+            }
+            if(line.isEOF()|| (LineTokenData.EMPTY!= line && line.length()>0)){
                 holder.add(line);
             }
         }
-        return holder.isEmpty()
-                ? MultiLineData.EMPTY
-                : new MultiLineData(start,end,holder.toArray(new LineToken[holder.size()]));
+        return MultiLineData.newInstance(holder);
     }
     public LineToken process(LineToken lineToken){
         if(lineToken instanceof MultiLine){

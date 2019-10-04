@@ -51,8 +51,9 @@ public class StringUtils {
 
     public static boolean containIgnoreCase(String chek, String ... parameter){
         if(chek == null) return false;
+        chek= chek.toLowerCase();
         for (String p: parameter) {
-            if(chek.contains(p))return true;
+            if(chek.contains(p.toLowerCase()))return true;
         }
         return false;
     }
@@ -72,5 +73,29 @@ public class StringUtils {
 
     public static boolean isEmpty(String value) {
         return value==null || "".equals(value);
+    }
+
+    public static long parseLength(String str){
+        long pengali = 1;
+        if(str.matches("\\d*kb?")){
+            pengali = 0x400;
+            str = str.replaceFirst("kb?","").trim();
+        }else if(str.matches("\\d*mb?")){
+            pengali = 0x100000;
+            str = str.replaceFirst("mb?","").trim();
+        }else if(str.matches("\\d*gb?")){
+            pengali = 0x40000000;
+            str = str.replaceFirst("gb?","").trim();
+        }
+        return Long.parseLong(str)*pengali;
+    }
+
+    public static boolean isNegativeAmount(String amount){
+        return  amount.startsWith("-");
+    }
+    public static String removeNegativeSignAmount(String amount){
+        return amount
+                .replaceFirst("-","")
+                .replaceFirst("\\(","").replaceAll("\\)","");
     }
 }

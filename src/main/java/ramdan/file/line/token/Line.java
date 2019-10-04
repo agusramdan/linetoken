@@ -11,6 +11,7 @@ public interface Line {
     String getLine();
     int length();
     boolean isEmpty();
+    boolean isEOF();
     boolean contain(String... parameter);
     boolean containAll(String... parameter);
     boolean containIgnoreCase(String... parameter);

@@ -17,18 +17,17 @@ import java.util.Arrays;
  * immutable class
  * except source
  */
-public class LineTokenData implements LineToken {
+public class LineTokenData extends LineTokenAbstract implements Traceable {
 
     public final static LineTokenData EMPTY = new LineTokenData(null);
-
-    static boolean stringTrim = true;
-    static boolean stringNullToEmpty=true;
+    public final static LineTokenData EOF = new LineTokenData(null);
 
     public static LineTokenData parse(String parseRule , Line line){
         LineTokenData lt = parse(line.getSource(),parseRule,line.getNo(),line.toString());
         lt.setSource(line);
         return lt;
     }
+
     public static LineTokenData parse(Line line){
         return parse("\\|",line);
     }
@@ -62,42 +61,20 @@ public class LineTokenData implements LineToken {
     public static LineTokenData newInstance(Integer line, Integer end,String ... tokens){
         return new LineTokenData(line,end,tokens);
     }
+    public static LineTokenData newInstance(String fileName,Integer line, Integer end,String ... tokens){
+        return new LineTokenData(fileName,line,end,tokens);
+    }
     public static LineTokenData newInstance(String ... tokens){
         return new LineTokenData(null,tokens);
     }
 
-    public static void args(String ... args){
-        for (String arg : args) {
-            if( "-empty".equals(arg)){
-                stringNullToEmpty = true;
-            }else if("-null".equals(arg)){
-                stringNullToEmpty=false;
-            }else if( "-trim".equals(arg)){
-                stringTrim = true;
-            }else if("-notrim".equals(arg)){
-                stringTrim = false;
-            }
-        }
-    }
     private final String file;
     private final Integer start;
     private final Integer end;
     private final String[] tokens;
     private Line source;
 
-    private String token(String t){
-        if (t == null){
-            if(stringNullToEmpty){
-                t = "";
-            }
-        }else{
-            if(stringTrim){
-                t = t.trim();
-            }
-            t= StringSave.save(t);
-        }
-        return t;
-    }
+
     LineTokenData(Integer line , String ... tokens){
         this(line,line,tokens);
     }
@@ -107,10 +84,14 @@ public class LineTokenData implements LineToken {
     LineTokenData(String file,Integer line , String ... tokens){
         this(file,line,line,tokens);
     }
+
     LineTokenData(String file,Integer start,Integer end , String ... tokens){
         this.file = file;
         this.start=start;
         this.end=end;
+        setFileName(file);
+        setStart(start);
+        setEnd(end);
         if(tokens==null){
             this.tokens=new String[0];
             return;
@@ -122,6 +103,11 @@ public class LineTokenData implements LineToken {
             idx ++;
         }
     }
+
+    public String getFileName() {
+        return file;
+    }
+
     public Integer getStart() {
         return start;
     }
@@ -148,63 +134,8 @@ public class LineTokenData implements LineToken {
      * @return
      */
     public String get(int index){
-        return index < tokens.length?tokens[index]:
+        return index >= 0 && index < tokens.length?tokens[index]:
                 stringNullToEmpty?"":null;
-    }
-
-    public int getInt(int index){
-        return getInt(index, ErrorHandlers.INTEGER_CONVERSION_ERROR_HANDLER);
-    }
-
-    public int getInt(int index, IntegerConversionErrorHandler handler){
-        String value = get(index);
-        try {
-            return Integer.valueOf(value);
-        }catch(Exception e){
-            return handler.handle(value);
-        }
-    }
-
-    public boolean isEmpty(int index){
-        String chek = get(index);
-        return StringUtils.isEmpty(chek);
-    }
-
-    /**
-     * equal one of parameter
-     *
-     * @param index
-     * @param parameter
-     * @return
-     */
-    public boolean equal(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.equal(chek,parameter);
-    }
-
-    public boolean equalIgnoreCase(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.equalIgnoreCase(chek,parameter);
-    }
-
-    public boolean contain(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.contain(chek,parameter);
-    }
-
-    public boolean containAll(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.containAll(chek,parameter);
-    }
-
-    public boolean containIgnoreCase(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.containIgnoreCase(chek,parameter);
-    }
-
-    public boolean containAllIgnoreCase(int index, String ... parameter){
-        String chek = get(index);
-        return StringUtils.containAllIgnoreCase(chek,parameter);
     }
 
     public LineToken replaceToken(int index, String token){
@@ -213,27 +144,15 @@ public class LineTokenData implements LineToken {
         return new LineTokenData(start,end,tokens);
     }
 
-    public void println(PrintStream ps){
-        println(ps,"|",true);
-    }
-
     public void println(PrintStream ps, String delimiter,boolean printLine){
+        if(isEOF()) return;
         int size = length();
         if(size > 0){
             if(delimiter == null || "".equals(delimiter)){
                 delimiter = "|";
             }
-
             if(printLine) {
-                if(file!=null){
-                    ps.printf("%s:", file);
-                }
-                if(start!= null){
-                    if( end==null|| start.equals(end))
-                        ps.printf("%06d:", start);
-                    else
-                        ps.printf("%06d->%06d:", start,end);
-                }
+                printLine(ps);
             }
             for (int i = 0; i < size; i++) {
                 if(!"".equals(tokens[i])){
@@ -242,13 +161,13 @@ public class LineTokenData implements LineToken {
                     ps.print(" ");
                 }
                 ps.print(delimiter);
-
             }
             ps.println();
         }
     }
 
     public void fixPrintln(PrintStream ps,int ... spaces){
+        if(isEOF()) return;
         int size = length();
         if(size > 0){
             for (int i = 0; i < spaces.length; i++) {
@@ -258,7 +177,7 @@ public class LineTokenData implements LineToken {
                     if(data.length()>abs){
                         ps.print(data.substring(0,abs));
                     }else {
-                        ps.printf("%" + (-1 * spaces[i]) + "s", size > i && tokens[i] != null ? tokens[i] : "");
+                        ps.printf("%" + (-1 * spaces[i]) + "s", data);
                     }
                 }
             }
@@ -287,5 +206,20 @@ public class LineTokenData implements LineToken {
     @Override
     public int hashCode() {
         return Arrays.hashCode(tokens);
+    }
+
+    @Override
+    public String toString() {
+        return source==null ? get(0):source.toString();
+    }
+
+    @Override
+    public void clearSource() {
+        source = null;
+    }
+
+    @Override
+    public boolean isEOF() {
+        return this==EOF || (source!=null && source.isEOF());
     }
 }

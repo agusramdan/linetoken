@@ -64,17 +64,17 @@ public class LineData implements Line {
 
     @Override
     public boolean containAll(String... parameter) {
-        return false;
+        return StringUtils.containAll(line,parameter);
     }
 
     @Override
     public boolean containIgnoreCase(String... parameter) {
-        return false;
+        return StringUtils.containIgnoreCase(line,parameter);
     }
 
     @Override
     public boolean containAllIgnoreCase(String... parameter) {
-        return false;
+        return StringUtils.containAllIgnoreCase(line,parameter);
     }
 
     @Override
