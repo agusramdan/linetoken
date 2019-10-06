@@ -38,7 +38,7 @@ public class MultilineLineTokenHandler implements LineTokenHandler {
             if(line==null){
                 continue;
             }
-            if(line.isEOF()|| (LineTokenData.EMPTY!= line && line.length()>0)){
+            if(line.isEOF()|| (LineTokenData.EMPTY!= line && MultiLineData.EMPTY!= line)){
                 holder.add(line);
             }
         }

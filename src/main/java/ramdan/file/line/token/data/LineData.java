@@ -12,12 +12,9 @@ import java.lang.ref.WeakReference;
  * immutable class
  */
 public class LineData implements Line {
-
-    private File source;
-    private int no;
-    private String line;
-    private WeakReference<LineToken> lineToken;
-
+    private final File source;
+    private final int no;
+    private final String line;
     public LineData(File source, int no, String line) {
         this.source = source;
         this.no = no;

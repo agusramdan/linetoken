@@ -1,11 +1,12 @@
 package ramdan.file.line.token.handler;
 
 import java.io.File;
+import java.util.Collection;
 
 public interface HandlerFactory {
     void loadConfig(String string);
     LineTokenHandler getStartLineTokenHandler();
-    LineTokenHandler getEndLineTokenHandler();
+    void loadContentLineTokenHandlers(Collection<LineTokenHandler> holder);
     LineTokenHandler getOutputLineTokenHandler();
     LineTokenHandler getFinallyLineTokenHandler();
 

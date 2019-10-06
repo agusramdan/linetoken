@@ -131,10 +131,12 @@ public class Main {
         if(lineTokenHolder != null){
             list.add(new ListLineTokenHandler(lineTokenHolder));
         }
-
         if(handlerFactory!=null){
-            list.add(handlerFactory.getEndLineTokenHandler());
+            handlerFactory.loadContentLineTokenHandlers(list);
         }
+//        if(handlerFactory!=null){
+//            list.add(handlerFactory.getEndLineTokenHandler());
+//        }
 
         PrintStream printStream = null;
         OutputLineTokenHandler outputLineTokenHandler = null;
@@ -172,7 +174,7 @@ public class Main {
             if (handlerFactory != null) {
                 list.add(handlerFactory.getFinallyLineTokenHandler());
             }
-            LineTokenHandler handler = new DelegatedLineTokenHandler(list);
+            LineTokenHandler handler = new DelegatedLineTokenHandler(true,list);
             LineListener listener = new LineTokenHandlerLineListener(handler);
             if(input != null){
                 String fileName=input.getName();

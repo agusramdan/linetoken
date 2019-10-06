@@ -22,10 +22,12 @@ public interface LineToken {
     boolean containIgnoreCase(int index, String ... parameter);
     boolean containAllIgnoreCase(int index, String ... parameter);
     LineToken replaceToken(int index, String token);
+    LineToken toLineToken(String token);
+    LineToken copyLineToken();
     void printLine(PrintStream ps);
     void println(PrintStream ps);
     void println(PrintStream ps, String delimiter,boolean printLine);
     void fixPrintln(PrintStream ps,int ... spaces);
     String[] copy(int idxStart);
-    void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
+    //void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
 }

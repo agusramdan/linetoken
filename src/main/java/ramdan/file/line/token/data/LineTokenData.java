@@ -68,9 +68,9 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
         return new LineTokenData(null,tokens);
     }
 
-    private final String file;
-    private final Integer start;
-    private final Integer end;
+    //private final String file;
+    //private final Integer start;
+    //private final Integer end;
     private final String[] tokens;
     private Line source;
 
@@ -86,12 +86,9 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
     }
 
     LineTokenData(String file,Integer start,Integer end , String ... tokens){
-        this.file = file;
-        this.start=start;
-        this.end=end;
-        setFileName(file);
-        setStart(start);
-        setEnd(end);
+        super(file,start,end);
+        //this.start=start;
+        //this.end=end;
         if(tokens==null){
             this.tokens=new String[0];
             return;
@@ -102,18 +99,6 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
             this.tokens[idx]=token(t);
             idx ++;
         }
-    }
-
-    public String getFileName() {
-        return file;
-    }
-
-    public Integer getStart() {
-        return start;
-    }
-
-    public Integer getEnd() {
-        return end;
     }
 
     public int length(){
@@ -138,10 +123,11 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
                 stringNullToEmpty?"":null;
     }
 
-    public LineToken replaceToken(int index, String token){
-        String[] tokens = new String[this.tokens.length];
-        tokens[index] = token(token);
-        return new LineTokenData(start,end,tokens);
+
+
+    @Override
+    protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
+        return new LineTokenData(fileName,start,end,tokens);
     }
 
     public void println(PrintStream ps, String delimiter,boolean printLine){
@@ -215,7 +201,8 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
 
     @Override
     public void clearSource() {
-        source = null;
+        if(source!=null && !source.isEOF())
+            source = null;
     }
 
     @Override

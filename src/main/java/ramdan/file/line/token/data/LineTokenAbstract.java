@@ -58,53 +58,39 @@ public abstract class LineTokenAbstract implements LineToken {
             }
         }
     }
-    private String file;
-    private Integer start;
-    private Integer end;
+    private final String file;
+    private final Integer start;
+    private final Integer end;
 
     public LineTokenAbstract() {
+        file = null;
+        start = null;
+        end = null;
     }
+
+    public LineTokenAbstract(String file, Integer start, Integer end) {
+        this.file = file;
+        this.start = start;
+        this.end = end;
+    }
+
     public LineTokenAbstract(LineToken lineToken) {
-        setFileName(lineToken.getFileName());
-        setStart(lineToken.getStart());
-        setEnd(lineToken.getEnd());
+        this(lineToken.getFileName(),lineToken.getStart(),lineToken.getEnd());
     }
     public String getFileName() {
         return file;
     }
 
-    protected void setFileName(String file) {
-        if(StringUtils.notEmpty(file)) {
-            this.file = file;
-        }
-    }
 
     @Override
     public Integer getStart() {
         return start;
     }
 
-    protected void setStart(Integer start) {
-        if(start == null || start < 0) return;
-        if(this.start ==null){
-            this.start = start;
-        }else{
-            this.start = Math.min(this.start,start);
-        }
-    }
 
     @Override
     public Integer getEnd() {
         return end;
-    }
-
-    protected void setEnd(Integer end) {
-        if(end == null || end < 0) return;
-        if(this.end ==null){
-            this.end = end;
-        }else{
-            this.end = Math.max(this.end,end);
-        }
     }
 
     public int getInt(int index){
@@ -167,10 +153,12 @@ public abstract class LineTokenAbstract implements LineToken {
     }
 
     public void printLine(PrintStream ps){
-
+        String file = getFileName();
         if(file!=null){
             ps.printf("%s:", file);
         }
+        Integer start = getStart();
+        Integer end = getEnd();
         if(start!= null){
             if( end==null|| start.equals(end))
                 ps.printf("%06d:", start);
@@ -223,19 +211,42 @@ public abstract class LineTokenAbstract implements LineToken {
         }
     }
     @Override
-    public LineToken replaceToken(int index, String token) {
-        throw new RuntimeException("not support function replace Token");
+    public LineToken replaceToken(int index, String token){
+        String[] tokens = copy(0);
+        if(index>= tokens.length ){
+            tokens[index] = token(token);
+        }
+        return newLineToken(getFileName(),getStart(),getEnd(),tokens);
     }
+
+    public LineToken toLineToken(String token){
+        if(length()<=1){
+            return newLineToken(getFileName(),getStart(),getEnd(),token);
+        }
+        return replaceToken(0,token);
+    }
+    public LineToken copyLineToken(){
+        return newLineToken(getFileName(),getStart(),getEnd(),copy(0));
+    }
+
+    protected abstract LineToken newLineToken(String fileName, Integer start, Integer end, String ...tokens);
 
     @Override
     public String[] copy(int idxStart) {
-        throw new RuntimeException("not support function replace Token");
+        int length = length();
+        if(idxStart>= length) return new String[0];
+        length-=idxStart;
+        String[] result = new String[length];
+        for (int i = 0; i < length; i++) {
+            result[i]=get(i+idxStart);
+        }
+        return result;
     }
 
-    @Override
-    public void arraycopy(int sourceIdxStart, String[] destination, int destinationIndexStart, int lengthCopy) {
-        throw new RuntimeException("not support function replace Token");
-    }
+//    @Override
+//    public void arraycopy(int sourceIdxStart, String[] destination, int destinationIndexStart, int lengthCopy) {
+//        throw new RuntimeException("not support function replace arraycopy");
+//    }
 
     public boolean isEOF(){
         return false;
