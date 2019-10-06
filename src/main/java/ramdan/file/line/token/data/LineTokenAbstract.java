@@ -213,7 +213,7 @@ public abstract class LineTokenAbstract implements LineToken {
     @Override
     public LineToken replaceToken(int index, String token){
         String[] tokens = copy(0);
-        if(index>= tokens.length ){
+        if(index>=0 && index<= tokens.length ){
             tokens[index] = token(token);
         }
         return newLineToken(getFileName(),getStart(),getEnd(),tokens);
