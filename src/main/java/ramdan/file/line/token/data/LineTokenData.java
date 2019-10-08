@@ -22,13 +22,16 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
     public final static LineTokenData EMPTY = new LineTokenData(null);
     public final static LineTokenData EOF = new LineTokenData(null);
 
-    public static LineTokenData parse(String parseRule , Line line){
+    public static LineToken parse(String parseRule , Line line){
+        if(line==null|| line.isEOF()){
+            return LineTokenAbstract.newEOF(line);
+        }
         LineTokenData lt = parse(line.getSource(),parseRule,line.getNo(),line.toString());
         lt.setSource(line);
         return lt;
     }
 
-    public static LineTokenData parse(Line line){
+    public static LineToken parse(Line line){
         return parse("\\|",line);
     }
     public static LineTokenData parse(String line){

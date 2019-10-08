@@ -58,6 +58,20 @@ public abstract class LineTokenAbstract implements LineToken {
             }
         }
     }
+    public static LineToken newEOF(String file, Integer start){
+        return new LineTokenEOF(file,start,start);
+    }
+
+    public static LineToken newEOF(Line line){
+        if(line == null) return newEOF(null,null);
+        String fileName = null;
+        File file = line.getSource();
+        if(file!= null){
+            fileName = file.getName();
+        }
+        Integer start = line.getNo();
+        return newEOF(fileName,start);
+    }
     private final String file;
     private final Integer start;
     private final Integer end;
@@ -263,4 +277,33 @@ public abstract class LineTokenAbstract implements LineToken {
 //        length = Math.min(result.length-idxResultStart,length);
 //        System.arraycopy(tokens,idxStart,result, idxResultStart, length);
 //    }
+
+    public static class LineTokenEOF extends LineTokenAbstract{
+        public LineTokenEOF(String file, Integer start, Integer end) {
+            super(file, start, end);
+        }
+
+        @Override
+        protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
+            return null;
+        }
+
+        @Override
+        public int length() {
+            return 0;
+        }
+
+        @Override
+        public Line getSource() {
+            return null;
+        }
+
+        @Override
+        public String get(int index) {
+            return "";
+        }
+        public boolean isEOF(){
+            return true;
+        }
+    }
 }
