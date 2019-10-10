@@ -1,5 +1,6 @@
 package ramdan.file.line.token;
 
+import ramdan.file.line.token.handler.DoubleConversionErrorHandler;
 import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
 import java.io.PrintStream;
@@ -14,6 +15,9 @@ public interface LineToken {
     String get(int index);
     int getInt(int index);
     int getInt(int index, IntegerConversionErrorHandler handler);
+    double getDouble(int index);
+    double getDouble(int index, DoubleConversionErrorHandler handler);
+
     boolean isEmpty(int index);
     boolean equal(int index, String ... parameter);
     boolean equalIgnoreCase(int index, String ... parameter);
@@ -29,5 +33,5 @@ public interface LineToken {
     void println(PrintStream ps, String delimiter,boolean printLine);
     void fixPrintln(PrintStream ps,int ... spaces);
     String[] copy(int idxStart);
-    //void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
+    void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
 }

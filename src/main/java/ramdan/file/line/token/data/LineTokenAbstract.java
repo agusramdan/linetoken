@@ -4,6 +4,7 @@ import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringSave;
 import ramdan.file.line.token.StringUtils;
+import ramdan.file.line.token.handler.DoubleConversionErrorHandler;
 import ramdan.file.line.token.handler.ErrorHandlers;
 import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
@@ -119,6 +120,18 @@ public abstract class LineTokenAbstract implements LineToken {
             return handler.handle(value);
         }
     }
+    public double getDouble(int index){
+        return getDouble(index, ErrorHandlers.DOUBLE_CONVERSION_ERROR_HANDLER);
+    }
+
+    public double getDouble(int index, DoubleConversionErrorHandler handler){
+        String value = get(index);
+        try {
+            return Double.valueOf(value);
+        }catch(Exception e){
+            return handler.handle(value);
+        }
+    }
 
     public boolean isEmpty(int index){
         String chek = get(index);
@@ -226,7 +239,13 @@ public abstract class LineTokenAbstract implements LineToken {
     }
     @Override
     public LineToken replaceToken(int index, String token){
-        String[] tokens = copy(0);
+        String[] tokens;
+        if(index< this.length()){
+            tokens=copy(0);
+        }else {
+            tokens=new String[index+1];
+            this.arraycopy(0,tokens,0,this.length());
+        }
         if(index>=0 && index<= tokens.length ){
             tokens[index] = token(token);
         }
@@ -277,7 +296,12 @@ public abstract class LineTokenAbstract implements LineToken {
 //        length = Math.min(result.length-idxResultStart,length);
 //        System.arraycopy(tokens,idxStart,result, idxResultStart, length);
 //    }
-
+    @Override
+    public void arraycopy(int sourceIdxStart, String[] destination, int destinationIndexStart, int lengthCopy) {
+        for (int i = 0; i < lengthCopy; i++) {
+            destination[i+destinationIndexStart]=get(i+sourceIdxStart);
+        }
+    }
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);
@@ -302,6 +326,7 @@ public abstract class LineTokenAbstract implements LineToken {
         public String get(int index) {
             return "";
         }
+
         public boolean isEOF(){
             return true;
         }
