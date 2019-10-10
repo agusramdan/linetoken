@@ -4,6 +4,7 @@ import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.MultiLine;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,10 +18,23 @@ public class MultiLineData  extends LineTokenData implements MultiLine {
             extract(lt,holder);
         }
         if (holder.isEmpty()) return EMPTY;
-        LineToken[] lineTokens = new LineToken[holder.size()];
+        LineToken[] lineTokens = holder.toArray(new LineToken[holder.size()]);
         Integer start= null;
         Integer end = null;
-        return new MultiLineData(start,end,holder.toArray(lineTokens));
+        for (LineToken lt : lineTokens) {
+            if(start == null){
+                start= lt.getStart();
+            }else if(lt.getStart()!=null){
+                start = Math.min(start,lt.getStart());
+            }
+
+            if(end == null){
+                end= lt.getEnd();
+            }else if(lt.getEnd()!=null){
+                end = Math.min(end,lt.getEnd());
+            }
+        }
+        return new MultiLineData(start,end,lineTokens);
     }
     public static void extract(LineToken lt, List<LineToken> holder){
         if(lt == null) return;
@@ -38,8 +52,9 @@ public class MultiLineData  extends LineTokenData implements MultiLine {
         }
     }
     public static LineToken merge(LineToken ... lineTokens) {
-        return new MultiLineData(null,null,lineTokens);
+        return newInstance(Arrays.asList(lineTokens));
     }
+
     LineToken[] lineTokens;
     public MultiLineData(Integer start,Integer end,LineToken ... lineTokens) {
         super(start, end);

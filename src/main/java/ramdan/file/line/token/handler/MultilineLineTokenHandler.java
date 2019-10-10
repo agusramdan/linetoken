@@ -49,7 +49,7 @@ public class MultilineLineTokenHandler implements LineTokenHandler {
             MultiLineData data = processMultiLine((MultiLine) lineToken);
             return  data.sizeLine()==0
                     ? LineTokenData.EMPTY
-                    : data;
+                    : data.sizeLine() == 1 ? data.index(0):data;
         }
         return processLine(lineToken);
     }
