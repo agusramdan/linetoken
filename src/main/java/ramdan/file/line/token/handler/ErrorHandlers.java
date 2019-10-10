@@ -9,4 +9,11 @@ public class ErrorHandlers {
                 }
             };
 
+    public static final DoubleConversionErrorHandler DOUBLE_CONVERSION_ERROR_HANDLER =
+            new DoubleConversionErrorHandler() {
+                @Override
+                public double handle(String string) {
+                    return 0;
+                }
+            };
 }
