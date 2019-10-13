@@ -11,6 +11,8 @@ import ramdan.file.line.token.listener.LineTokenListener;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public class StreamUtils {
@@ -75,6 +77,48 @@ public class StreamUtils {
                 ;
             }
         }
+    }
+    public static void copy(File source, File dest) throws IOException {
+        copy(source,dest,false);
+    }
+
+    public static void copy(File source, File dest,boolean append) throws IOException {
+        try (
+                InputStream is = new FileInputStream(source);
+                OutputStream os = new FileOutputStream(dest,append);
+        ){
+            copy(is,os);
+        }
+    }
+
+    public static void copy(InputStream is, File dest,boolean append) throws IOException {
+        try (
+                OutputStream os = new FileOutputStream(dest,append);
+        ){
+            copy(is,os);
+        }
+    }
+
+    public static void copy(InputStream is, OutputStream os) throws IOException {
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = is.read(buffer)) > 0) {
+            os.write(buffer, 0, length);
+        }
+    }
+
+    public static List<File> listFilesRecursive(File file, FileFilter fileFilter){
+        List<File> fileList = new ArrayList<>();
+        if(file.isDirectory()){
+            File[] files=file.listFiles(fileFilter);
+            for (File f:files) {
+                fileList.addAll(listFilesRecursive(f,fileFilter));
+            }
+        }else
+        if(file.isFile()){
+            fileList.add(file);
+        }
+        return fileList;
     }
 
 }

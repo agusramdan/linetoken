@@ -185,16 +185,9 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
         System.arraycopy(tokens,idxStart,result, idxResultStart, length);
     }
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        LineTokenData that = (LineTokenData) o;
-        return Arrays.equals(tokens, that.tokens);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(tokens);
+    public void clearSource() {
+        if(source!=null && !source.isEOF())
+            source = null;
     }
 
     @Override
@@ -203,13 +196,20 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
     }
 
     @Override
-    public void clearSource() {
-        if(source!=null && !source.isEOF())
-            source = null;
+    public boolean isEOF() {
+        return this==EOF || (source!=null && source.isEOF());
     }
 
     @Override
-    public boolean isEOF() {
-        return this==EOF || (source!=null && source.isEOF());
+    public int hashCode() {
+        return Arrays.hashCode(tokens);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LineTokenData that = (LineTokenData) o;
+        return Arrays.equals(tokens, that.tokens);
     }
 }

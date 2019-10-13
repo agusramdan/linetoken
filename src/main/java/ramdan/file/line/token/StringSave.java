@@ -13,6 +13,18 @@ public class StringSave {
     static boolean stringIntern = false;
     private static WeakHashMap<String,WeakReference<String>> map = new WeakHashMap<>();
 
+    private synchronized static String saveCache(String string){
+        WeakReference<String> weakReference  = map.get(string);
+        String cache = null;
+        if(weakReference!=null)
+            cache = weakReference.get();
+        if (cache == null) {
+            map.put(string, new WeakReference<>(string));
+            cache = string;
+        }
+        return cache;
+    }
+
     public static String save(String string){
         if(string==null) return null;
         if(stringSave) {
@@ -20,15 +32,7 @@ public class StringSave {
             if (stringIntern) {
                 return string.intern();
             } else {
-                WeakReference<String> weakReference  = map.get(string);
-                String cache = null;
-                if(weakReference!=null)
-                    cache = weakReference.get();
-                if (cache == null) {
-                    map.put(string, new WeakReference<>(string));
-                    cache = string;
-                }
-                return cache;
+                return saveCache(string);
             }
         }else {
             return string;

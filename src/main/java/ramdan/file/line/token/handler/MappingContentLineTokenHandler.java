@@ -2,20 +2,20 @@ package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.data.LineTokenData;
-import ramdan.file.line.token.data.MultiLineData;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
 
     protected final MultiLineTokenFilter filter;
-
+    protected final boolean removeNotMatch;
     protected boolean start;
 
-    public MappingContentLineTokenHandler(MultiLineTokenFilter filter) {
+    public MappingContentLineTokenHandler(MultiLineTokenFilter filter, boolean removeNotMatch) {
         this.filter = filter;
+        this.removeNotMatch = removeNotMatch;
+    }
+    public MappingContentLineTokenHandler(MultiLineTokenFilter filter) {
+        this(filter,false);
     }
     protected void reset(){
 
@@ -49,8 +49,7 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
         if(filter.isMatchContent(tag)){
             return matchContent(lineToken);
         }
-
-        return lineToken;
+        return removeNotMatch? LineTokenData.EMPTY:lineToken;
     }
 
     private LineToken notReadyEndTagHandle(LineToken lineToken) {

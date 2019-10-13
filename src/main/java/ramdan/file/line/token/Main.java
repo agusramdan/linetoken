@@ -1,5 +1,4 @@
 package ramdan.file.line.token;
-import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.Statistic;
 import ramdan.file.line.token.filter.FilterComplex;
@@ -10,9 +9,8 @@ import ramdan.file.line.token.listener.LineListener;
 import ramdan.file.line.token.listener.LineTokenHandlerLineListener;
 
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Main {
     public static Main main = new Main();
@@ -85,9 +83,9 @@ public class Main {
         process(null);
     }
     private void process(File input) throws IOException {
-        process(input,null);
+        process(input,null).run();
     }
-    void process(File input,File output) throws IOException {
+    private DefaultFileHandler process(File input,File output) throws IOException {
         List<LineTokenHandler> list = new ArrayList<>();
 
         if(statistic!=null){
@@ -113,12 +111,6 @@ public class Main {
             list.add(new FilterLineTokenHandler(filterRule));
         }
 
-        if(parameters.containsKey("-fd")){
-            list.add(new DuplicateFilterLineTokenHandler(
-                    "BSTARTEVSUMMARY_\\d*|TSTARTEVSUMMROW_\\d*|EVSUMMROWNAME_\\w*|EVSUMMROW\\d*" ,
-                    "BENDEVSUMMARY_\\d*|TENDEVSUMMARY_\\d*","DOCSTART\\w*|DOCEND|BSTARTGROUP|BENDGROUP|BSTARTEVSUMMGROUP|BENDEVSUMMGROUP|BSTARTPRODITEM|BENDPRODITEM"));
-        }
-
         if(parameters.containsKey("-mcs")){
             String cls =parameters.get("-mcs");
             addMappingHandlers(list,cls);
@@ -134,9 +126,6 @@ public class Main {
         if(handlerFactory!=null){
             handlerFactory.loadContentLineTokenHandlers(list);
         }
-//        if(handlerFactory!=null){
-//            list.add(handlerFactory.getEndLineTokenHandler());
-//        }
 
         PrintStream printStream = null;
         OutputLineTokenHandler outputLineTokenHandler = null;
@@ -174,42 +163,20 @@ public class Main {
             if (handlerFactory != null) {
                 list.add(handlerFactory.getFinallyLineTokenHandler());
             }
-            LineTokenHandler handler = new DelegatedLineTokenHandler(true,list);
-            LineListener listener = new LineTokenHandlerLineListener(handler);
-            if(input != null){
-                String fileName=input.getName();
-                if(fileName.endsWith(".gz")||fileName.endsWith(".zip")){
-                    StreamUtils.readLineGzip(input,listener);
-                }else {
-                    StreamUtils.readLine(input,listener);
-                }
-            }else {
-                StreamUtils.readLine(System.in,listener);
-            }
-
+            DefaultFileHandler dfh = new DefaultFileHandler();
+            dfh.setInput(input);
+            dfh.setList(list);
+            return dfh;
         }finally{
             if(outputLineTokenHandler != null){
                 outputLineTokenHandler.flush();
             }
-            flushIgnore(printStream);
-            closeIgnore(outputLineTokenHandler);
-            closeIgnore(printStream);
+            StreamUtils.flushIgnore(printStream);
+            StreamUtils.closeIgnore(outputLineTokenHandler);
+            StreamUtils.closeIgnore(printStream);
         }
     }
-    void flushIgnore(PrintStream closeable)   {
-        if(closeable !=null){
-            closeable.flush();
-        }
-    }
-    void closeIgnore(Closeable closeable)   {
-        if(closeable !=null){
-            try {
-                closeable.close();
-            } catch (IOException e) {
-                ;
-            }
-        }
-    }
+
     private Map <String,Object> cacheInstance = new HashMap<>();
 
     private Object getInstance(String c){
@@ -270,25 +237,10 @@ public class Main {
     }
 
 
-
-    List<File> listFilesRecursive(File file,FileFilter fileFilter){
-        List<File> fileList = new ArrayList<>();
-        if(file.isDirectory()){
-            File[] files=file.listFiles(fileFilter);
-            for (File f:files) {
-                fileList.addAll(listFilesRecursive(f,fileFilter));
-            }
-        }else
-        if(file.isFile()){
-            fileList.add(file);
-        }
-        return fileList;
-    }
-
-    void distributionFile(final  File directoryInput,final File directoryOutput) throws IOException {
+    private void processDirectory(final  File directoryInput, final File directoryOutput) throws IOException {
         String df = parameters.get("-df");
         boolean silent = Boolean.valueOf(parameters.get("-silent"));
-        List<File> fileList = listFilesRecursive(directoryInput, new ExtensionFileFilter(parameters.get("-ix")));
+        List<File> fileList = StreamUtils.listFilesRecursive(directoryInput, new ExtensionFileFilter(parameters.get("-ix")));
         long maxLength = Long.MAX_VALUE;
         /**
          * Get sample data and copy to directory
@@ -310,16 +262,14 @@ public class Main {
                     File parent =target.getParentFile();
                     if(!parent.exists()){
                         if(!parent.mkdirs()){
-                            if(!silent){
-                                System.out.printf("fail mkdir %s \n",parent);
-                            }
+                            System.err.printf("fail mkdir %s \n",parent);
                         }
                     }
 
                     if(!silent){
                         System.out.printf("copy %d size  %s \n",file.length(),relativ);
                     }
-                    copy(file,target);
+                    StreamUtils.copy(file,target);
                     count ++;
                 }
             }
@@ -329,7 +279,7 @@ public class Main {
         }
 
     }
-    void processDirectoryFile(final File input, File output) throws IOException{
+    private void processContent(final File input, File output) throws IOException{
         final boolean isDirectoryOutput = output!=null && output.isDirectory();
         if(Boolean.parseBoolean(parameters.get("-statistic"))){
             statistic = new Statistic();
@@ -351,20 +301,41 @@ public class Main {
             filterComplex = FilterComplex.read(file);
         }
         if(input !=null && input.isDirectory()){
-            List<File> fileList = listFilesRecursive(input,  new ExtensionFileFilter(parameters.get("-ix")));
-
+            List<File> fileList = StreamUtils.listFilesRecursive(input,  new ExtensionFileFilter(parameters.get("-ix")));
+            ExecutorService executorService =Executors.newFixedThreadPool(10);
+            List<Future> data = new ArrayList<>();
             for (File fileInput:fileList) {
                 File fileOutput =isDirectoryOutput
                         ?new File(output,StreamUtils.relative(input,fileInput))
                         :output;
-                process(fileInput,fileOutput);
+                data.add(executorService.submit(process(fileInput,fileOutput)));
             }
+            int i=0;
+            while (!data.isEmpty()){
+                try {
+                    data.get(i).get(1, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    //e.printStackTrace();
+                }
+
+                if(data.get(i).isDone()){
+                    data.remove(i);
+                }else {
+                    i++;
+                }
+                if(i>=data.size()){
+                    i=0;
+                }
+
+
+            }
+            executorService.shutdown();
         }else{
             if(input != null){
                 File fileOutput = isDirectoryOutput
                         ?new File(output,input.getName())
                         :output;
-                process(input,fileOutput);
+                process(input,fileOutput).run();
             }else{
                 process();
             }
@@ -404,9 +375,9 @@ public class Main {
             outputFile = new File(outputString);
         }
         if(parameters.containsKey("-df")){
-            distributionFile(inputFile,outputFile);
+            processDirectory(inputFile,outputFile);
         }else {
-            processDirectoryFile(inputFile, outputFile);
+            processContent(inputFile, outputFile);
         }
     }
 
@@ -429,17 +400,6 @@ public class Main {
         }
     }
 
-    private static void copy(File source, File dest) throws IOException {
-        try (
-                InputStream is = new FileInputStream(source);
-                OutputStream os = new FileOutputStream(dest);
-        ){
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-        }
-    }
+
 
 }

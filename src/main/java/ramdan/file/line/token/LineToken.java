@@ -34,4 +34,5 @@ public interface LineToken {
     void fixPrintln(PrintStream ps,int ... spaces);
     String[] copy(int idxStart);
     void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
+    boolean equalTokens(LineToken lt);
 }

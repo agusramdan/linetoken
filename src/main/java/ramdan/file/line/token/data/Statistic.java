@@ -41,16 +41,14 @@ public class Statistic {
         c++;
         mapCount.put(str,c);
     }
-    public void add(LineToken lineToken){
+    public synchronized void  add(LineToken lineToken){
         if(lineToken == null) return;
         lineCount++;
         for (int i = 0; i < lineToken.length(); i++) {
             count(lineToken.get(i));
         }
     }
-
-
-    public void add(File file){
+    public synchronized void add(File file){
         if(file == null || !file.exists() || file.isDirectory()) return;
         fileCount++;
         fileSize+=file.length();

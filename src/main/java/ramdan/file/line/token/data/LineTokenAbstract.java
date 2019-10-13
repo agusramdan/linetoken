@@ -11,6 +11,7 @@ import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 import java.io.File;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * immutable class
@@ -302,6 +303,19 @@ public abstract class LineTokenAbstract implements LineToken {
             destination[i+destinationIndexStart]=get(i+sourceIdxStart);
         }
     }
+
+    public boolean equalTokens(LineToken o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        int length = Math.max(this.length(),o.length());
+        for (int i = 0; i < length; i++) {
+            if(!this.equal(i,o.get(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);
