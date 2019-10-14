@@ -51,6 +51,7 @@
         </plugins>
     </build>
     <dependencies>
+        <!--
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -66,6 +67,7 @@
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
         </dependency>
+        -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

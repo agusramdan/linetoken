@@ -133,7 +133,10 @@ public abstract class LineTokenAbstract implements LineToken {
             return handler.handle(value);
         }
     }
-
+    public boolean notEmpyt(int index){
+        String chek = get(index);
+        return StringUtils.notEmpty(chek);
+    }
     public boolean isEmpty(int index){
         String chek = get(index);
         return StringUtils.isEmpty(chek);

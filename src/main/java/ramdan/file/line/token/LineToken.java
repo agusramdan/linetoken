@@ -17,7 +17,7 @@ public interface LineToken {
     int getInt(int index, IntegerConversionErrorHandler handler);
     double getDouble(int index);
     double getDouble(int index, DoubleConversionErrorHandler handler);
-
+    boolean notEmpyt(int i);
     boolean isEmpty(int index);
     boolean equal(int index, String ... parameter);
     boolean equalIgnoreCase(int index, String ... parameter);
@@ -35,4 +35,6 @@ public interface LineToken {
     String[] copy(int idxStart);
     void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
     boolean equalTokens(LineToken lt);
+
+
 }

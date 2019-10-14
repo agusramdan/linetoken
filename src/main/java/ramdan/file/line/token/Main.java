@@ -1,4 +1,5 @@
 package ramdan.file.line.token;
+import ramdan.file.line.token.config.FileConfigHolder;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.Statistic;
 import ramdan.file.line.token.filter.FilterComplex;
@@ -358,6 +359,7 @@ public class Main {
     }
 
     public void run() throws IOException {
+        FileConfigHolder.load(parameters.get("-cnf"));
         String inputString=parameters.get("-i");
         if(inputString==null){
             runNoFileInput();
