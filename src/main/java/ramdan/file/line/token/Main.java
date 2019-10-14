@@ -359,7 +359,7 @@ public class Main {
     }
 
     public void run() throws IOException {
-        FileConfigHolder.load(parameters.get("-cnf"));
+        FileConfigHolder.load(parameters.get("-cfg"));
         String inputString=parameters.get("-i");
         if(inputString==null){
             runNoFileInput();
