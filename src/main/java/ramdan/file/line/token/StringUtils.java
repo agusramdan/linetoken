@@ -1,6 +1,34 @@
 package ramdan.file.line.token;
 
 public class StringUtils {
+
+    /**
+     * tag delimiter accept one of this
+     * 1. "| "
+     * 2. "|"
+     * 3. " " default
+     *
+     * @param line
+     * @return
+     */
+    public static String getGenevaTagDelimiter(String line){
+        int idx = line.indexOf("| ");
+        String delimiter =" ";
+        if(idx>0){
+            delimiter="| ";
+        }
+        int newIdx = line.indexOf("|");
+        if(newIdx>1 && (idx == -1 || idx > newIdx) ){
+            idx = newIdx;
+            delimiter="|";
+        }
+        newIdx = line.indexOf(" ");
+        if(newIdx>1 && (idx == -1 || idx > newIdx) ){
+            idx = newIdx;
+            delimiter=" ";
+        }
+        return delimiter;
+    }
     public static boolean equalOnce(String param,String ...compare){
         for (String c: compare) {
             if(param.equals(c)) return true;

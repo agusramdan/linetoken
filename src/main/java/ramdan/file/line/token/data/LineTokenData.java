@@ -19,56 +19,98 @@ import java.util.Arrays;
  */
 public class LineTokenData extends LineTokenAbstract implements Traceable {
 
-    public final static LineTokenData EMPTY = new LineTokenData(null);
-    public final static LineTokenData EOF = new LineTokenData(null);
+    public final static LineTokenData EMPTY = new LineTokenData();
+    public final static LineTokenData EOF = new LineTokenData();
 
-    public static LineToken parse(String parseRule , Line line){
+//    public static LineToken parse(String parseRule , Line line){
+//        if(line==null|| line.isEOF()){
+//            return LineTokenAbstract.newEOF(line);
+//        }
+//        LineTokenData lt = parse(line.getSource(),parseRule,line.getNo(),line.toString());
+//        lt.setSource(line);
+//        return lt;
+//    }
+
+    public static LineToken parse(Line line){
         if(line==null|| line.isEOF()){
             return LineTokenAbstract.newEOF(line);
         }
-        LineTokenData lt = parse(line.getSource(),parseRule,line.getNo(),line.toString());
+        LineTokenData lt = parse(line.getSource(),null,null,line.getNo(),line.toString());
         lt.setSource(line);
         return lt;
     }
-
-    public static LineToken parse(Line line){
-        return parse("\\|",line);
-    }
     public static LineTokenData parse(String line){
-        return parse("\\|",null,line);
+        return parse((File)null,null,null,null,line);
     }
-    public static LineTokenData parse(Integer lineNo, String line){
-        return parse("\\|",lineNo,line);
-    }
-    public static LineTokenData parse(File file, Integer lineNo, String line){
-        return parse(file,"\\|",lineNo,line);
+//    public static LineTokenData parse(Integer lineNo, String line){
+//        return parse(null,null,lineNo,line);
+//    }
+//    public static LineTokenData parse(File file, Integer lineNo, String line){
+//        return parse(file,"\\|",lineNo,line);
+//    }
+
+//    public static LineTokenData parse(File file,String parseRule, Integer lineNo, String line){
+//        String filename = file!= null ? file.getName():null;
+//        return line ==null?
+//                newInstance(filename,lineNo):
+//                newInstance(filename,lineNo,line.split(parseRule));
+//    }
+    public static LineTokenData parse(File file,String tagDelimiter, String tokenDelimiter, Integer lineNo, String line){
+        String filename = file!= null ? file.getName():null;
+        if(line==null){
+            return newInstance(filename,lineNo);
+        }
+        line = line.trim();
+        if(tagDelimiter == null){
+            tagDelimiter = StringUtils.getGenevaTagDelimiter(line);
+        }
+        if(tokenDelimiter==null){
+            tokenDelimiter = "|";
+        }
+
+        if(tagDelimiter !=null && !tagDelimiter.equals(tokenDelimiter)) {
+            switch (tagDelimiter) {
+                case "| ":
+                    line = line.replaceFirst("\\| ", tokenDelimiter);
+                    break;
+                case "|" :
+                    line= line.replaceFirst("\\|",tokenDelimiter);
+                    break;
+                default:
+                    line = line.replaceFirst(tagDelimiter,tokenDelimiter);
+
+            }
+        }
+        String parseRule = null;
+        if(tokenDelimiter.equals("|")){
+            parseRule = "\\|";
+        }else{
+            parseRule = tokenDelimiter;
+        }
+
+        return new LineTokenData(filename,lineNo,tagDelimiter,tokenDelimiter,line.split(parseRule));
     }
 
-    public static LineTokenData parse(File file,String parseRule, Integer lineNo, String line){
-        String filename = file!= null ? file.getName():null;
-        return line ==null?
-                newInstance(filename,lineNo):
-                newInstance(filename,lineNo,line.split(parseRule));
-    }
+
     public static LineTokenData parse(String parseRule, Integer lineNo, String line){
         return line ==null?
                 newInstance(lineNo):
                 newInstance(lineNo,line.split(parseRule));
     }
     public static LineTokenData newInstance(String file ,Integer line, String ... tokens){
-        return new LineTokenData(file,line,tokens);
+        return new LineTokenData(file,line,null,null,tokens);
     }
     public static LineTokenData newInstance(Integer line, String ... tokens){
-        return new LineTokenData(line,tokens);
+        return new LineTokenData(line,null,null,tokens);
     }
     public static LineTokenData newInstance(Integer line, Integer end,String ... tokens){
-        return new LineTokenData(line,end,tokens);
+        return new LineTokenData(line,end,null,null,tokens);
     }
     public static LineTokenData newInstance(String fileName,Integer line, Integer end,String ... tokens){
-        return new LineTokenData(fileName,line,end,tokens);
+        return new LineTokenData(fileName,line,end,null,null,tokens);
     }
     public static LineTokenData newInstance(String ... tokens){
-        return new LineTokenData(null,tokens);
+        return new LineTokenData(null,null,null,tokens);
     }
 
     //private final String file;
@@ -77,19 +119,21 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
     private final String[] tokens;
     private Line source;
 
+    private LineTokenData(){
+        this(null,null,null,null,null,null);
+    }
+    LineTokenData(Integer line , String tagDelimiter, String tokenDelimiter, String[]  tokens){
+        this(line,line,tagDelimiter,tokenDelimiter,tokens);
+    }
+    LineTokenData(Integer start,Integer end , String tagDelimiter, String tokenDelimiter, String[]  tokens){
+        this(null,start,end,tagDelimiter,tokenDelimiter,tokens);
+    }
+    LineTokenData(String file,Integer line , String tagDelimiter, String tokenDelimiter, String[]  tokens){
+        this(file,line,line,tagDelimiter,tokenDelimiter,tokens);
+    }
 
-    LineTokenData(Integer line , String ... tokens){
-        this(line,line,tokens);
-    }
-    LineTokenData(Integer start,Integer end , String ... tokens){
-        this(null,start,end,tokens);
-    }
-    LineTokenData(String file,Integer line , String ... tokens){
-        this(file,line,line,tokens);
-    }
-
-    LineTokenData(String file,Integer start,Integer end , String ... tokens){
-        super(file,start,end);
+    LineTokenData(String file,Integer start,Integer end , String tagDelimiter, String tokenDelimiter, String[] tokens){
+        super(file,start,end,tagDelimiter,tokenDelimiter);
         //this.start=start;
         //this.end=end;
         if(tokens==null){
@@ -130,30 +174,30 @@ public class LineTokenData extends LineTokenAbstract implements Traceable {
 
     @Override
     protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
-        return new LineTokenData(fileName,start,end,tokens);
+        return new LineTokenData(fileName,start,end,tagDelimiter,tokenDelimiter,tokens);
     }
 
-    public void println(PrintStream ps, String delimiter,boolean printLine){
-        if(isEOF()) return;
-        int size = length();
-        if(size > 0){
-            if(delimiter == null || "".equals(delimiter)){
-                delimiter = "|";
-            }
-            if(printLine) {
-                printLine(ps);
-            }
-            for (int i = 0; i < size; i++) {
-                if(!"".equals(tokens[i])){
-                    ps.print(tokens[i]);
-                }else{
-                    ps.print(" ");
-                }
-                ps.print(delimiter);
-            }
-            ps.println();
-        }
-    }
+//    public void println(PrintStream ps, String delimiter,boolean printLine){
+//        if(isEOF()) return;
+//        int size = length();
+//        if(size > 0){
+//            if(delimiter == null || "".equals(delimiter)){
+//                delimiter = "|";
+//            }
+//            if(printLine) {
+//                printLine(ps);
+//            }
+//            for (int i = 0; i < size; i++) {
+//                if(!"".equals(tokens[i])){
+//                    ps.print(tokens[i]);
+//                }else{
+//                    ps.print(" ");
+//                }
+//                ps.print(delimiter);
+//            }
+//            ps.println();
+//        }
+//    }
 
     public void fixPrintln(PrintStream ps,int ... spaces){
         if(isEOF()) return;

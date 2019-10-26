@@ -10,6 +10,28 @@ import static org.junit.Assert.*;
 public class StringUtilsTest {
 
     @Test
+    public void getGenevaTagDelimiter_pipeSpace(){
+
+        assertEquals("| ",StringUtils.getGenevaTagDelimiter("TAGNAME| VALUE|value"));
+    }
+    @Test
+    public void getGenevaTagDelimiter_pipe(){
+
+        assertEquals("|",StringUtils.getGenevaTagDelimiter("TAGNAME|VALUE| value"));
+    }
+    @Test
+    public void getGenevaTagDelimiter_space(){
+
+        assertEquals(" ",StringUtils.getGenevaTagDelimiter("TAGNAME VALUE|value| values"));
+    }
+    @Test
+    public void getGenevaTagDelimiter_spaceDefault(){
+
+        assertEquals(" ",StringUtils.getGenevaTagDelimiter("TAGNAME"));
+        assertEquals(" ",StringUtils.getGenevaTagDelimiter("TAGNAME "));
+        assertEquals(" ",StringUtils.getGenevaTagDelimiter("TAGNAME |"));
+    }
+    @Test
     public void equal(){
         assertTrue(StringUtils.equal("data","data"));
         assertTrue(StringUtils.equal(null,(String)null));
@@ -86,4 +108,15 @@ public class StringUtilsTest {
         assertFalse(StringUtils.containAllIgnoreCase("NO IN","no","net"));
     }
 
+    @Test
+    public void parseLength(){
+        assertEquals(1024,StringUtils.parseLength("1kb"));
+        assertEquals(1024,StringUtils.parseLength("1k"));
+
+        assertEquals(1048576,StringUtils.parseLength("1mb"));
+        assertEquals(1048576,StringUtils.parseLength("1m"));
+
+        assertEquals(1073741824,StringUtils.parseLength("1gb"));
+        assertEquals(1073741824,StringUtils.parseLength("1g"));
+    }
 }

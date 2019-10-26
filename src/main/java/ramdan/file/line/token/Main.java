@@ -24,6 +24,7 @@ public class Main {
     private Statistic statistic;
     private HandlerFactory handlerFactory;
     private FilterComplex filterComplex;
+
     /**
      * Populate Argument
      * -i         : input directory of file
@@ -301,14 +302,26 @@ public class Main {
             File file = new File(parameters.get("-fc"));
             filterComplex = FilterComplex.read(file);
         }
+        String extension = parameters.get("-ox");
+        if(extension!=null  && !extension.startsWith(".")) extension = "."+extension;
+
         if(input !=null && input.isDirectory()){
             List<File> fileList = StreamUtils.listFilesRecursive(input,  new ExtensionFileFilter(parameters.get("-ix")));
             ExecutorService executorService =Executors.newFixedThreadPool(10);
             List<Future> data = new ArrayList<>();
             for (File fileInput:fileList) {
-                File fileOutput =isDirectoryOutput
-                        ?new File(output,StreamUtils.relative(input,fileInput))
-                        :output;
+                File fileOutput;
+                if(isDirectoryOutput){
+                    String fileName = StreamUtils.relative(input,fileInput);
+                    if(extension!=null && !fileName.endsWith(extension)){
+                        fileName = fileName+extension;
+                    }
+                    fileOutput = new File(output,fileName);
+                    fileOutput.getParentFile().mkdirs();
+                }else {
+                    fileOutput = output;
+                }
+
                 data.add(executorService.submit(process(fileInput,fileOutput)));
             }
             int i=0;
@@ -333,9 +346,18 @@ public class Main {
             executorService.shutdown();
         }else{
             if(input != null){
-                File fileOutput = isDirectoryOutput
-                        ?new File(output,input.getName())
-                        :output;
+
+                File fileOutput ;
+                if(isDirectoryOutput){
+                    String fileName = input.getName();
+                    if(extension!=null && !fileName.endsWith(extension)){
+                        fileName = fileName+extension;
+                    }
+                    fileOutput = new File(output,fileName);
+                    fileOutput.getParentFile().mkdirs();
+                }else {
+                    fileOutput = output;
+                }
                 process(input,fileOutput).run();
             }else{
                 process();

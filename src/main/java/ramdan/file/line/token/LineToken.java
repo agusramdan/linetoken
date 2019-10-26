@@ -12,6 +12,8 @@ public interface LineToken {
     int length();
     Line getSource();
     boolean isEOF();
+    String getTagname();
+    String getValue();
     String get(int index);
     int getInt(int index);
     int getInt(int index, IntegerConversionErrorHandler handler);
@@ -31,6 +33,7 @@ public interface LineToken {
     void printLine(PrintStream ps);
     void println(PrintStream ps);
     void println(PrintStream ps, String delimiter,boolean printLine);
+    void println(PrintStream ps, String tagdelimiter, String tokendelimiter,boolean printLine);
     void fixPrintln(PrintStream ps,int ... spaces);
     String[] copy(int idxStart);
     void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);

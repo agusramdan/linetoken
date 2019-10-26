@@ -19,6 +19,32 @@ public class LineTokenTest {
     }
 
     @Test
+    public void testParse_Space(){
+        LineTokenData lineToken = LineTokenData.parse("TAGNAME token-0");
+
+        assertEquals(2,lineToken.length());
+        assertEquals(" ",lineToken.tagDelimiter);
+        assertEquals("|",lineToken.tokenDelimiter);
+    }
+
+    @Test
+    public void testParsePipeSpace(){
+        LineTokenData lineToken = LineTokenData.parse("TAGNAME| token-0");
+
+        assertEquals(2,lineToken.length());
+        assertEquals("| ",lineToken.tagDelimiter);
+        assertEquals("|",lineToken.tokenDelimiter);
+    }
+
+    @Test
+    public void testParsePipe(){
+        LineTokenData lineToken = LineTokenData.parse("TAGNAME|token-0");
+
+        assertEquals(2,lineToken.length());
+        assertEquals("|",lineToken.tagDelimiter);
+        assertEquals("|",lineToken.tokenDelimiter);
+    }
+    @Test
     public void testParse_null(){
         LineTokenData lineToken = LineTokenData.parse((String)null);
         assertEquals(0,lineToken.length());
@@ -60,7 +86,7 @@ public class LineTokenTest {
 
     @Test
     public void testEqualIndex_(){
-        LineTokenData lineToken = new LineTokenData(null,"token-0-data");
+        LineTokenData lineToken =LineTokenData.newInstance("token-0-data");
 
         assertTrue(lineToken.equal(0,"token-0-data"));
         assertTrue(lineToken.equal(0,"salah","token-0-data"));
@@ -192,7 +218,7 @@ public class LineTokenTest {
 
         lineToken.println(ps);
 
-        assertEquals("data|NO IN|",baos.toString().trim());
+        assertEquals("data| NO IN|",baos.toString().trim());
     }
 
     @Test

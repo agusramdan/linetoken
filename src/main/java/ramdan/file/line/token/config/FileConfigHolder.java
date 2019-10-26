@@ -17,7 +17,7 @@ public class FileConfigHolder {
     private final static LineTokenListener configListener= new LineTokenListener() {
         @Override
         public void event(LineToken lineToken) {
-            if(lineToken.get(0).startsWith("#")) {
+            if(lineToken.getTagname().startsWith("#")) {
                 return;
             }
             configLineToken.add(lineToken);
@@ -33,7 +33,7 @@ public class FileConfigHolder {
     public static void load(File config) throws IOException {
         StreamUtils.readLine(config,configListener);
     }
-    public static void loadTo(LineTokenListener listener) {
+    public static void read(LineTokenListener listener) {
         for (LineToken lt: configLineToken) {
             listener.event(lt);
         }

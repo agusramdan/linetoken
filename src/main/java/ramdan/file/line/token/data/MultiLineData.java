@@ -57,7 +57,7 @@ public class MultiLineData  extends LineTokenData implements MultiLine {
 
     LineToken[] lineTokens;
     public MultiLineData(Integer start,Integer end,LineToken ... lineTokens) {
-        super(start, end);
+        super(start, end,null,null,null);
         this.lineTokens = lineTokens;
 
     }

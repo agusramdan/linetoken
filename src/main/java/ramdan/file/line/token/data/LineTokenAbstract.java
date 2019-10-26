@@ -77,19 +77,29 @@ public abstract class LineTokenAbstract implements LineToken {
     private final String file;
     private final Integer start;
     private final Integer end;
+    protected final String tagDelimiter;
+    protected final String tokenDelimiter;
 
     public LineTokenAbstract() {
-        file = null;
-        start = null;
-        end = null;
+        this(null, null,null,null,null);
     }
 
     public LineTokenAbstract(String file, Integer start, Integer end) {
+        this(file, start,end,null,null);
+    }
+    public LineTokenAbstract(String file, Integer start, Integer end,String tagdelimiter, String tokendelimiter) {
         this.file = file;
         this.start = start;
         this.end = end;
+        if(tagdelimiter==null){
+            tagdelimiter = "| ";
+        }
+        this.tagDelimiter =tagdelimiter;
+        if(tokendelimiter == null){
+            tokendelimiter = "|";
+        }
+        this.tokenDelimiter= tokendelimiter;
     }
-
     public LineTokenAbstract(LineToken lineToken) {
         this(lineToken.getFileName(),lineToken.getStart(),lineToken.getEnd());
     }
@@ -103,7 +113,12 @@ public abstract class LineTokenAbstract implements LineToken {
         return start;
     }
 
-
+    public String getTagname(){
+        return get(0);
+    }
+    public String getValue(){
+        return get(1);
+    }
     @Override
     public Integer getEnd() {
         return end;
@@ -180,7 +195,7 @@ public abstract class LineTokenAbstract implements LineToken {
     }
 
     public void println(PrintStream ps){
-        println(ps,"|",true);
+        println(ps,null,null,true);
     }
 
     public void printLine(PrintStream ps){
@@ -199,30 +214,37 @@ public abstract class LineTokenAbstract implements LineToken {
             ps.printf("%06d:", end);
         }
     }
-    public void println(PrintStream ps, String delimiter,boolean printLine){
+    public void println(PrintStream ps, String tagdelimiter, String tokendelimiter,boolean printLine){
+        if(isEOF()) return;
         int size = length();
         if(size > 0){
-            if(delimiter == null || "".equals(delimiter)){
-                delimiter = "|";
+            if(tagdelimiter == null || "".equals(tagdelimiter)){
+                tagdelimiter = this.tagDelimiter;
             }
-
+            if(tokendelimiter == null || "".equals(tokendelimiter)){
+                tokendelimiter = this.tokenDelimiter;
+            }
             if(printLine) {
                 printLine(ps);
             }
-            for (int i = 0; i < size; i++) {
+            ps.print(getTagname());
+            ps.print(tagdelimiter);
+            for (int i = 1; i < size; i++) {
                 String value = get(i);
                 if(!"".equals(value)){
                     ps.print(value);
                 }else{
                     ps.print(" ");
                 }
-                ps.print(delimiter);
+                ps.print(tokendelimiter);
 
             }
             ps.println();
         }
     }
-
+    public void println(PrintStream ps, String delimiter,boolean printLine){
+         println(ps,delimiter,delimiter,printLine);
+    }
     public void fixPrintln(PrintStream ps,int ... spaces){
         int size = length();
         if(size > 0){

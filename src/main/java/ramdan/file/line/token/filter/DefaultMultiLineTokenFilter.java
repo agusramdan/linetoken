@@ -1,6 +1,8 @@
 package ramdan.file.line.token.filter;
 
 
+import ramdan.file.line.token.LineToken;
+
 /**
  * Immutable class
  *
@@ -26,8 +28,14 @@ public class DefaultMultiLineTokenFilter implements MultiLineTokenFilter {
     public boolean isMatchStart(String value){
         return start.isMatchRule(value);
     }
+    public boolean isMatchStart(LineToken value){
+        return start.accept(value);
+    }
     public boolean isMatchEnd(String value){
         return end.isMatchRule(value);
+    }
+    public boolean isMatchEnd(LineToken value){
+        return end.accept(value);
     }
     public boolean isMatchContent(String value){
         for(RegexMatchRule t : content){

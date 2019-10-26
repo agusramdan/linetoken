@@ -46,13 +46,13 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
                 reset();
             }
         }else
-        if(filter.isMatchContent(tag)){
+        if(start && filter.isMatchContent(tag)){
             return matchContent(lineToken);
         }
         return removeNotMatch? LineTokenData.EMPTY:lineToken;
     }
 
-    private LineToken notReadyEndTagHandle(LineToken lineToken) {
+    protected LineToken notReadyEndTagHandle(LineToken lineToken) {
         return lineToken;
     }
 
