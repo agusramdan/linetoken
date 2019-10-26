@@ -6,7 +6,7 @@
 
     <groupId>ramdan.file</groupId>
     <artifactId>linetoken</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <build>
         <plugins>
@@ -51,7 +51,7 @@
         </plugins>
     </build>
     <dependencies>
-        <!--
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -67,7 +67,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
         </dependency>
-        -->
         <dependency>
             <!-- CookCC is only needed at compile time -->
             <groupId>org.yuanheng.cookcc</groupId>

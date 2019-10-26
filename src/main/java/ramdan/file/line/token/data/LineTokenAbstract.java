@@ -1,5 +1,6 @@
 package ramdan.file.line.token.data;
 
+import lombok.Getter;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringSave;
@@ -75,7 +76,9 @@ public abstract class LineTokenAbstract implements LineToken {
         return newEOF(fileName,start);
     }
     private final String file;
+    @Getter
     private final Integer start;
+    @Getter
     private final Integer end;
     protected final String tagDelimiter;
     protected final String tokenDelimiter;
@@ -108,20 +111,12 @@ public abstract class LineTokenAbstract implements LineToken {
     }
 
 
-    @Override
-    public Integer getStart() {
-        return start;
-    }
 
     public String getTagname(){
         return get(0);
     }
     public String getValue(){
         return get(1);
-    }
-    @Override
-    public Integer getEnd() {
-        return end;
     }
 
     public int getInt(int index){

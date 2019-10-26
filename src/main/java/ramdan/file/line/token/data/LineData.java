@@ -1,5 +1,6 @@
 package ramdan.file.line.token.data;
 
+import lombok.Getter;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringUtils;
@@ -12,8 +13,11 @@ import java.lang.ref.WeakReference;
  * immutable class
  */
 public class LineData implements Line {
+    @Getter
     private final File source;
+    @Getter
     private final int no;
+    @Getter
     private final String line;
     public LineData(File source, int no, String line) {
         this.source = source;
@@ -27,18 +31,6 @@ public class LineData implements Line {
         this(null,0,line);
     }
 
-    public File getSource() {
-        return source;
-    }
-
-    @Override
-    public int getNo() {
-        return no;
-    }
-
-    public String getLine() {
-        return line;
-    }
     @Override
     public int length() {
         return line==null?0:line.length();
