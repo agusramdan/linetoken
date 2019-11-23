@@ -1,6 +1,8 @@
 package ramdan.file.line.token.data;
 
 import lombok.Getter;
+import lombok.val;
+import lombok.var;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringSave;
@@ -119,6 +121,11 @@ public abstract class LineTokenAbstract implements LineToken {
         return get(1);
     }
 
+    protected String getSave(int i){
+        val r = get(i);
+        if(r==null) return "";
+        return r;
+    }
     public int getInt(int index){
         return getInt(index, ErrorHandlers.INTEGER_CONVERSION_ERROR_HANDLER);
     }
@@ -336,6 +343,20 @@ public abstract class LineTokenAbstract implements LineToken {
         return true;
     }
 
+    public int compareTo(LineToken t,int ... idxs) {
+        var com= 0;
+        if(idxs==null || idxs.length==0){
+            val l = Math.max(length(),t.length());
+            for (int i = 0; com == 0 && i < l; i++) {
+                com = getSave(i).compareTo(t.get(i));
+            }
+        }else {
+            for (int i = 0; com == 0 && i < idxs.length; i++) {
+                com = getSave(idxs[i]).compareTo(t.get(idxs[i]));
+            }
+        }
+        return com;
+    }
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);

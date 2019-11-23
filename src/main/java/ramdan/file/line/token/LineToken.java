@@ -39,5 +39,5 @@ public interface LineToken {
     void arraycopy(int sourceIdxStart,String[] destination,int destinationIndexStart,int lengthCopy);
     boolean equalTokens(LineToken lt);
 
-
+    int compareTo(LineToken right, int ... idxs);
 }
