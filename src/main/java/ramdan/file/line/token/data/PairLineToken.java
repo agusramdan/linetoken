@@ -5,6 +5,8 @@ import lombok.val;
 import ramdan.file.line.token.LineToken;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -23,6 +25,9 @@ public class PairLineToken {
         return contents.add(lineToken);
     }
 
+    public void sort(Comparator<LineToken> comparator){
+        Collections.sort(contents,comparator);
+    }
     public List<LineToken> getPairLineToken(){
         val result = new ArrayList<LineToken>();
         if(start==null){

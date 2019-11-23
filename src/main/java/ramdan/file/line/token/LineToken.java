@@ -5,7 +5,7 @@ import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
 import java.io.PrintStream;
 
-public interface LineToken {
+public interface LineToken extends Comparable<LineToken>{
     String getFileName();
     Integer getStart() ;
     Integer getEnd();

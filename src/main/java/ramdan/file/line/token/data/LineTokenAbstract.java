@@ -357,6 +357,12 @@ public abstract class LineTokenAbstract implements LineToken {
         }
         return com;
     }
+
+    @Override
+    public int compareTo(LineToken lineToken) {
+        return compareTo(lineToken,(int[]) null);
+    }
+
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);
