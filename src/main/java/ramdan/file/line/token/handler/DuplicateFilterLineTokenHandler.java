@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.MultiLineData;
 import ramdan.file.line.token.filter.RegexMatchRule;
@@ -16,7 +17,7 @@ public class DuplicateFilterLineTokenHandler extends DefaultLineTokenHandler {
     private RegexMatchRule first;
     private RegexMatchRule last;
     private RegexMatchRule reset;
-    private List<LineToken> capture = new ArrayList<>();
+    private List<Tokens> capture = new ArrayList<>();
     public DuplicateFilterLineTokenHandler(RegexMatchRule first,RegexMatchRule last,RegexMatchRule reset) {
         this.first = first;
         this.last = last;
@@ -27,20 +28,20 @@ public class DuplicateFilterLineTokenHandler extends DefaultLineTokenHandler {
         this(new RegexMatchRule(first),new RegexMatchRule(last),new RegexMatchRule(resetRegex));
     }
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
         if(reset.accept(lineToken)){
-            LineToken result;
+            Tokens result;
             if(capture.isEmpty()){
                 result = lineToken;
             }else {
                 capture.add(lineToken);
-                result = MultiLineData.newInstance(capture);
+                result = MultiLineData.tokens(capture);
                 capture = new ArrayList<>();
             }
             return result;
         }
         if(first.accept(lineToken)){
-            for (LineToken t : capture) {
+            for (Tokens t : capture) {
                 if(t.equals(lineToken)){
                     return  LineTokenData.EMPTY;
                 }

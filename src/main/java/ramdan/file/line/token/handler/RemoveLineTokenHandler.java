@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.DefaultMultiLineTokenFilter;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
@@ -17,22 +18,22 @@ public class RemoveLineTokenHandler extends MappingContentLineTokenHandler {
     }
 
     @Override
-    protected LineToken endTagHandle(LineToken lineToken) {
+    protected Tokens endTagHandle(LineToken lineToken) {
         return LineTokenData.EMPTY;
     }
 
     @Override
-    protected LineToken startTagHandle(LineToken lineToken) {
+    protected Tokens startTagHandle(LineToken lineToken) {
         return LineTokenData.EMPTY;
     }
 
     @Override
-    protected LineToken alreadyStartTagHandle(LineToken lineToken) {
+    protected Tokens alreadyStartTagHandle(LineToken lineToken) {
         return LineTokenData.EMPTY;
     }
 
     @Override
-    protected LineToken matchContent(LineToken lineToken) {
+    protected Tokens matchContent(LineToken lineToken) {
         return LineTokenData.EMPTY;
     }
 }

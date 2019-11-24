@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.FilterComplex;
 
@@ -13,7 +14,7 @@ public class FilterComplexLineTokenHandler extends DefaultLineTokenHandler {
         this.filterComplex = filterComplex;
     }
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
         String tag = lineToken.get(0);
         if(start){
             if(filterComplex.isMatchEnd(tag)){

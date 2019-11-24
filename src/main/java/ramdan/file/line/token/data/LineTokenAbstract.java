@@ -363,6 +363,11 @@ public abstract class LineTokenAbstract implements LineToken {
         return compareTo(lineToken,(int[]) null);
     }
 
+    @Override
+    public boolean isEmpty() {
+        return length()==0;
+    }
+
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);
@@ -386,6 +391,11 @@ public abstract class LineTokenAbstract implements LineToken {
         @Override
         public String get(int index) {
             return "";
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return true;
         }
 
         public boolean isEOF(){

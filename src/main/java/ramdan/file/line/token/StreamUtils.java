@@ -45,6 +45,8 @@ public class StreamUtils {
                 listener.event(line);
             }
             listener.event(new LineData(input,reader.getLineNumber(),null));
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public static void readLine(InputStream input, LineListener listener) throws IOException {
@@ -56,6 +58,8 @@ public class StreamUtils {
                 listener.event(line);
             }
             listener.event(new LineData(null,reader.getLineNumber(),null));
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
     public static void readLine(File input, LineTokenListener listener) throws IOException {

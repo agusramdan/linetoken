@@ -1,5 +1,7 @@
 package ramdan.file.line.token.config;
 
+import lombok.var;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,5 +24,18 @@ public class ConfigHolder {
 
     public static boolean containsConfig(Object o) {
         return holder.containsKey(o);
+    }
+
+    public static synchronized <T extends ConfigToken> void load(Class<T> cls){
+        try {
+            var obj = getConfig(cls);
+            if(obj == null) {
+                obj = cls.newInstance();
+                FileConfigHolder.read(obj.configListener);
+                add( obj);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

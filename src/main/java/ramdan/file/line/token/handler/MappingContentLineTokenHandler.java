@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 
@@ -21,7 +22,7 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
 
     }
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
         String tag = lineToken.get(0);
         if(filter.isMatchStart(tag)){
             try {
@@ -52,23 +53,23 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
         return removeNotMatch? LineTokenData.EMPTY:lineToken;
     }
 
-    protected LineToken notReadyEndTagHandle(LineToken lineToken) {
+    protected Tokens notReadyEndTagHandle(LineToken lineToken) {
         return lineToken;
     }
 
-    protected LineToken endTagHandle(LineToken lineToken) {
+    protected Tokens endTagHandle(LineToken lineToken) {
         return lineToken;
     }
 
-    protected LineToken startTagHandle(LineToken lineToken) {
+    protected Tokens startTagHandle(LineToken lineToken) {
         return lineToken;
     }
 
-    protected LineToken alreadyStartTagHandle(LineToken lineToken) {
+    protected Tokens alreadyStartTagHandle(LineToken lineToken) {
         return lineToken;
     }
 
-    protected LineToken matchContent(LineToken lineToken){
+    protected Tokens matchContent(LineToken lineToken){
         return lineToken;
     }
 

@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 
 import java.io.PrintStream;
 
@@ -12,7 +13,7 @@ public class PrintStreamLineTokenHandler extends DefaultLineTokenHandler{
     }
 
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
         lineToken.println(printStream);
         printStream.flush();
         return lineToken;

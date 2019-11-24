@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 
 import java.util.Set;
@@ -14,7 +15,7 @@ public class FilterLineTokenHandler extends DefaultLineTokenHandler {
     }
 
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
 
         if(!mapping.contains(lineToken)){
             lineToken = LineTokenData.EMPTY;

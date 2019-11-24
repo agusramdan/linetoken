@@ -6,8 +6,7 @@ import ramdan.file.line.token.filter.FilterComplex;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 import ramdan.file.line.token.filter.RegexMatchRule;
 import ramdan.file.line.token.handler.*;
-import ramdan.file.line.token.listener.LineListener;
-import ramdan.file.line.token.listener.LineTokenHandlerLineListener;
+
 
 import java.io.*;
 import java.util.*;
@@ -229,9 +228,10 @@ public class Main {
         for (String c: clss) {
             Object obj = getInstance(c);
             if(obj!= null) {
-                if(obj instanceof MultiLineTokenFilter){
-                    list.add(new MappingMultiLineTokenHandler((MultiLineTokenFilter) obj));
-                }else if(obj instanceof LineTokenHandler){
+//                if(obj instanceof MultiLineTokenFilter){
+//                    list.add(new MappingMultiLineTokenHandler((MultiLineTokenFilter) obj));
+//                }else
+                if(obj instanceof LineTokenHandler){
                     list.add((LineTokenHandler) obj);
                 }
             }

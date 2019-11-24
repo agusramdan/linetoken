@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.RegexMatchRule;
 
@@ -23,7 +24,7 @@ public class RegexLineTokenHandler extends DefaultLineTokenHandler {
         this(new RegexMatchRule(regex),null);
     }
     @Override
-    public LineToken process(LineToken lineToken) {
+    public Tokens process(LineToken lineToken) {
         return rule.isMatchRule(lineToken.get(0))
                 ? handler.process(lineToken)
                 : LineTokenData.EMPTY;
