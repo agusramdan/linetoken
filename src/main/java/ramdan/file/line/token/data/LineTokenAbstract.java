@@ -11,16 +11,18 @@ import ramdan.file.line.token.handler.DoubleConversionErrorHandler;
 import ramdan.file.line.token.handler.ErrorHandlers;
 import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
-import java.io.File;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * immutable class
  * except source
  */
 public abstract class LineTokenAbstract implements LineToken {
+    private static final long serialversionUID = 20191125;
+
     static boolean stringTrim = true;
     static boolean stringNullToEmpty=true;
     public static String get(LineToken  token , int idx){
@@ -77,14 +79,49 @@ public abstract class LineTokenAbstract implements LineToken {
         Integer start = line.getNo();
         return newEOF(fileName,start);
     }
-    private final String file;
     @Getter
-    private final Integer start;
+    private transient DoubleConversionErrorHandler doubleConversionErrorHandler=ErrorHandlers.DOUBLE_CONVERSION_ERROR_HANDLER;
     @Getter
-    private final Integer end;
-    protected final String tagDelimiter;
-    protected final String tokenDelimiter;
+    private transient IntegerConversionErrorHandler integerConversionErrorHandler=ErrorHandlers.INTEGER_CONVERSION_ERROR_HANDLER;
 
+    private transient String file;
+    @Getter
+    private transient Integer start;
+    @Getter
+    private transient Integer end;
+    @Getter
+    private transient String tagDelimiter;
+    @Getter
+    private transient String tokenDelimiter;
+    private transient long timestamp;
+
+    protected String readUTF(ObjectInput in) throws IOException, ClassNotFoundException{
+        return in.readBoolean()?in.readUTF():null;
+    }
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        timestamp= in.readLong();
+        tagDelimiter= readUTF(in);
+        tokenDelimiter=readUTF(in);
+        file = readUTF(in);
+        start = (Integer) in.readObject();
+        end = (Integer)in.readObject();
+    }
+    protected void writeUTF(ObjectOutput out,String string) throws IOException{
+        if(string==null){
+            out.writeBoolean(false);
+        }else {
+            out.writeBoolean(true);
+            out.writeUTF(string);
+        }
+    }
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeLong(timestamp);
+        writeUTF(out,tagDelimiter);
+        writeUTF(out,tokenDelimiter);
+        writeUTF(out,file);
+        out.writeObject(start);
+        out.writeObject(end);
+    }
     public LineTokenAbstract() {
         this(null, null,null,null,null);
     }
@@ -92,7 +129,10 @@ public abstract class LineTokenAbstract implements LineToken {
     public LineTokenAbstract(String file, Integer start, Integer end) {
         this(file, start,end,null,null);
     }
-    public LineTokenAbstract(String file, Integer start, Integer end,String tagdelimiter, String tokendelimiter) {
+    public LineTokenAbstract(String file, Integer start, Integer end,String tagdelimiter, String tokendelimiter){
+        this(file, start, end, tagdelimiter, tokendelimiter,System.currentTimeMillis());
+    }
+    public LineTokenAbstract(String file, Integer start, Integer end,String tagdelimiter, String tokendelimiter,long timestamp) {
         this.file = file;
         this.start = start;
         this.end = end;
@@ -104,6 +144,7 @@ public abstract class LineTokenAbstract implements LineToken {
             tokendelimiter = "|";
         }
         this.tokenDelimiter= tokendelimiter;
+        this.timestamp=timestamp;
     }
     public LineTokenAbstract(LineToken lineToken) {
         this(lineToken.getFileName(),lineToken.getStart(),lineToken.getEnd());
@@ -111,14 +152,28 @@ public abstract class LineTokenAbstract implements LineToken {
     public String getFileName() {
         return file;
     }
-
-
-
+    public long timestamp(){
+        return timestamp;
+    }
     public String getTagname(){
         return get(0);
     }
     public String getValue(){
         return get(1);
+    }
+
+    public void setDoubleConversionErrorHandler(DoubleConversionErrorHandler doubleConversionErrorHandler) {
+        if(doubleConversionErrorHandler==null){
+            doubleConversionErrorHandler=ErrorHandlers.DOUBLE_CONVERSION_ERROR_HANDLER;
+        }
+        this.doubleConversionErrorHandler = doubleConversionErrorHandler;
+
+    }
+    public void setIntegerConversionErrorHandler(IntegerConversionErrorHandler integerConversionErrorHandler) {
+        if(integerConversionErrorHandler==null){
+            integerConversionErrorHandler = ErrorHandlers.INTEGER_CONVERSION_ERROR_HANDLER;
+        }
+        this.integerConversionErrorHandler = integerConversionErrorHandler;
     }
 
     protected String getSave(int i){
@@ -195,16 +250,41 @@ public abstract class LineTokenAbstract implements LineToken {
         String chek = get(index);
         return StringUtils.containAllIgnoreCase(chek,parameter);
     }
+    public boolean matches(String pattern, int ... idx){
+        return  matches(Pattern.compile(pattern));
+    }
+    public boolean matchesAll(String pattern, int ... idx){
+        return  matchesAll(Pattern.compile(pattern));
+    }
 
+    public boolean matches(Pattern pattern, int ... idx){
+        for (int i : idx) {
+            if(pattern.matcher(get(i)).matches()){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean matchesAll(Pattern pattern, int ... idx){
+        for (int i : idx) {
+            if(!pattern.matcher(get(i)).matches()){
+                return false;
+            }
+        }
+        return true;
+    }
+    public void println(PrintStream ps,boolean printLine){
+        println(ps,null,null,printLine);
+    }
     public void println(PrintStream ps){
         println(ps,null,null,true);
     }
-
     public void printLine(PrintStream ps){
         String file = getFileName();
         if(file!=null){
             ps.printf("%s:", file);
         }
+        ps.printf("%08d:", timestamp()-Line.default_time);
         Integer start = getStart();
         Integer end = getEnd();
         if(start!= null){
@@ -215,16 +295,17 @@ public abstract class LineTokenAbstract implements LineToken {
         }else if(end !=null){
             ps.printf("%06d:", end);
         }
+
     }
     public void println(PrintStream ps, String tagdelimiter, String tokendelimiter,boolean printLine){
         if(isEOF()) return;
         int size = length();
         if(size > 0){
             if(tagdelimiter == null || "".equals(tagdelimiter)){
-                tagdelimiter = this.tagDelimiter;
+                tagdelimiter = this.getTagDelimiter();
             }
             if(tokendelimiter == null || "".equals(tokendelimiter)){
-                tokendelimiter = this.tokenDelimiter;
+                tokendelimiter = this.getTokenDelimiter();
             }
             if(printLine) {
                 printLine(ps);
@@ -277,20 +358,20 @@ public abstract class LineTokenAbstract implements LineToken {
         if(index>=0 && index<= tokens.length ){
             tokens[index] = token(token);
         }
-        return newLineToken(getFileName(),getStart(),getEnd(),tokens);
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp(),tokens);
     }
 
     public LineToken toLineToken(String token){
         if(length()<=1){
-            return newLineToken(getFileName(),getStart(),getEnd(),token);
+            return newLineToken(getFileName(),getStart(),getEnd(),timestamp(),token);
         }
         return replaceToken(0,token);
     }
     public LineToken copyLineToken(){
-        return newLineToken(getFileName(),getStart(),getEnd(),copy(0));
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp(),copy(0));
     }
-
-    protected abstract LineToken newLineToken(String fileName, Integer start, Integer end, String ...tokens);
+    protected abstract LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens);
+    protected abstract LineToken newLineToken(String fileName, Integer start, Integer end,long timestamp, String ...tokens);
 
     @Override
     public String[] copy(int idxStart) {
@@ -375,6 +456,10 @@ public abstract class LineTokenAbstract implements LineToken {
 
         @Override
         protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
+            return null;
+        }
+        @Override
+        protected LineToken newLineToken(String fileName, Integer start, Integer end, long timestamp, String... tokens) {
             return null;
         }
 

@@ -1,15 +1,16 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.StreamUtils;
+import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.listener.LineListener;
-import ramdan.file.line.token.listener.LineTokenHandlerLineListener;
+import ramdan.file.line.token.listener.LineTokenCallbackLineListener;
+import ramdan.file.line.token.listener.TokensCallbackLineListener;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-public class DefaultFileHandler implements FileHandler ,Runnable{
-
+public class DefaultFileHandler implements FileHandler<Tokens> ,Runnable{
 
     private File input;
     private List<LineTokenHandler> list;
@@ -22,14 +23,15 @@ public class DefaultFileHandler implements FileHandler ,Runnable{
     }
 
     @Override
-    public void process(File input, Callback callback) {
-        OutputLineTokenHandler outputLineTokenHandler = null;
+    public void process(File input, Callback<Tokens> callback) {
+        //OutputLineTokenHandler outputLineTokenHandler = null;
         try{
-            LineTokenHandler handler = new DelegatedLineTokenHandler(true,list);
-            LineListener listener = new LineTokenHandlerLineListener(handler);
+            DelegateLineTokenHandler handler = new DelegateLineTokenHandler(true,list);
+            handler.setNext(callback);
+            LineListener listener = new TokensCallbackLineListener(handler);
             if(input != null){
                 String fileName=input.getName();
-                if(fileName.endsWith(".gz")||fileName.endsWith(".zip")){
+                if(fileName.endsWith(".gz")){
                     StreamUtils.readLineGzip(input,listener);
                 }else {
                     StreamUtils.readLine(input,listener);
@@ -39,12 +41,12 @@ public class DefaultFileHandler implements FileHandler ,Runnable{
             }
         } catch (IOException e) {
             e.printStackTrace();
-            callback.call(e);
+            //callback.call(e);
         } finally{
-            if(outputLineTokenHandler != null){
-                outputLineTokenHandler.flush();
+            for (Object o: list) {
+                StreamUtils.closeIgnore(o);
+                StreamUtils.destroyIgnore(o);
             }
-            StreamUtils.closeIgnore(outputLineTokenHandler);
             callback.call(null);
         }
 
@@ -52,9 +54,9 @@ public class DefaultFileHandler implements FileHandler ,Runnable{
 
     @Override
     public void run() {
-        process(input, new Callback() {
+        process(input, new Callback<Tokens>() {
             @Override
-            public void call(Object o) {
+            public void call(Tokens o) {
 
             }
         });

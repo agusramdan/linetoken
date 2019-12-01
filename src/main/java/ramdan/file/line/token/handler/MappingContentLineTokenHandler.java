@@ -1,8 +1,10 @@
 package ramdan.file.line.token.handler;
 
+import lombok.val;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
+import ramdan.file.line.token.data.MultiLineData;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 
 public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
@@ -66,7 +68,11 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
     }
 
     protected Tokens alreadyStartTagHandle(LineToken lineToken) {
-        return lineToken;
+        val result = endTagHandle(LineTokenData.EMPTY);
+        reset();
+        return MultiLineData.merge(
+                result,
+                endTagHandle(lineToken));
     }
 
     protected Tokens matchContent(LineToken lineToken){

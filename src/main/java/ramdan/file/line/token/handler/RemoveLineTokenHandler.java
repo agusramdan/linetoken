@@ -28,11 +28,6 @@ public class RemoveLineTokenHandler extends MappingContentLineTokenHandler {
     }
 
     @Override
-    protected Tokens alreadyStartTagHandle(LineToken lineToken) {
-        return LineTokenData.EMPTY;
-    }
-
-    @Override
     protected Tokens matchContent(LineToken lineToken) {
         return LineTokenData.EMPTY;
     }

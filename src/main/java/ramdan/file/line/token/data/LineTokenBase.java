@@ -12,10 +12,13 @@ public class LineTokenBase extends LineTokenAbstract {
     public LineTokenBase(LineToken lineToken) {
         super(lineToken);
     }
-
     @Override
     protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
-        return LineTokenData.newInstance(fileName,start,end,tokens);
+        return LineTokenData.newInstance(fileName,start,end,timestamp(),tokens);
+    }
+    @Override
+    protected LineToken newLineToken(String fileName, Integer start, Integer end,long timestamp, String... tokens) {
+        return LineTokenData.newInstance(fileName,start,end,timestamp,tokens);
     }
 
     @Override

@@ -1,8 +1,6 @@
 package ramdan.file.line.token.data;
 
-import jdk.nashorn.internal.parser.Token;
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokensHolder;
 import ramdan.file.line.token.MultiLine;
 import ramdan.file.line.token.Tokens;
 
@@ -14,7 +12,7 @@ import java.util.List;
 public class MultiLineData  implements MultiLine {
 
     public final static MultiLineData EMPTY = new MultiLineData(null,null);
-    public static Tokens tokens(List<Tokens> list) {
+    public static Tokens tokens(List<? extends Tokens> list) {
         if (list == null || list.isEmpty()) return EMPTY;
         List<Tokens> holder = new ArrayList<>();
         for (Tokens lt : list) {

@@ -1,62 +1,53 @@
 package ramdan.file.line.token.handler;
 
-import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokensHolder;
+import lombok.Setter;
+import lombok.val;
 import ramdan.file.line.token.MultiLine;
 import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.MultiLineData;
 
-import java.util.ArrayList;
-import java.util.List;
+public class DelegateTokensHandler implements TokensHandler,Callback<Tokens>{
 
-public class DelegateTokensHandler implements TokensHandler{
+    private TokensHandler delegate;
+    @Setter
+    private Callback<Tokens> next;
 
-    private LineTokenHandler delegated;
-
-    public DelegateTokensHandler(LineTokenHandler delegated) {
-        this.delegated = delegated;
+    public DelegateTokensHandler(TokensHandler delegate) {
+        this.delegate = delegate;
     }
 
-    private Tokens processLine(LineToken lineToken){
-        return delegated.process(lineToken);
-    }
-
-    private void toHolder(List<Tokens> holder,Tokens lt){
-        if(lt!=null && (lt.isEOF()|| (LineTokenData.EMPTY!= lt && MultiLineData.EMPTY!= lt))){
-            holder.add(lt);
-        }
-    }
-    private Tokens processLineTokensHolder(LineTokensHolder lineTokensHolder){
-        List<Tokens> holder = new ArrayList<>();
-        toHolder(holder,processLine(lineTokensHolder.getStartBlock()));
-        while (lineTokensHolder.hashNextContent()){
-            toHolder(holder,processLine(lineTokensHolder.nextContent()));
-        }
-        toHolder(holder,processLine(lineTokensHolder.getEndBlock()));
-        return MultiLineData.tokens(holder);
-    }
-    private Tokens processMultiLine(MultiLine lineToken){
+    private void processMultiLine(MultiLine lineToken , Callback<Tokens> next){
         int size = lineToken.sizeLine();
-        List<Tokens> holder = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            toHolder(holder,process(lineToken.index(i)));
+            processCallback(lineToken.index(i),next);
         }
-        return MultiLineData.tokens(holder);
     }
     public Tokens process(Tokens lineToken){
         if(lineToken==null){
             return LineTokenData.EMPTY;
         }
-        if(lineToken instanceof LineTokensHolder){
-            return processLineTokensHolder((LineTokensHolder) lineToken);
+        val next = new ArrayListCallback<Tokens>();
+        processCallback(lineToken,next);
+        return MultiLineData.tokens(next.getArrayList());
+    }
+
+    @Override
+    public void processCallback(Tokens tokes, Callback<Tokens> next) {
+        if(tokes==null||(!tokes.isEOF()&&tokes.isEmpty())){
+            next.call(LineTokenData.EMPTY);
+            return;
         }
-        if(lineToken instanceof MultiLine){
-            return processMultiLine((MultiLine) lineToken);
+        if(tokes instanceof MultiLine){
+            processMultiLine((MultiLine) tokes, next);
+        }else {
+            next.call(delegate.process(tokes));
         }
-        if(lineToken instanceof LineToken){
-            return processLine((LineToken)lineToken);
-        }
-        return lineToken;
+    }
+
+    @Override
+    public void call(Tokens tokens) {
+        processCallback(tokens,next);
+
     }
 }

@@ -7,22 +7,29 @@ import ramdan.file.line.token.StringUtils;
 
 import java.io.File;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.lang.ref.WeakReference;
 
 /**
  * immutable class
  */
 public class LineData implements Line {
+    public final static long check_timestamp = Line.default_time;
     @Getter
     private final File source;
     @Getter
     private final int no;
     @Getter
     private final String line;
-    public LineData(File source, int no, String line) {
+    @Getter private final long timestamp;
+    public LineData(File source, int no, String line,long timestamp) {
         this.source = source;
         this.no = no;
         this.line = line;
+        this.timestamp=timestamp;
+    }
+    public LineData(File source, int no, String line) {
+        this(source, no,line,System.currentTimeMillis());
     }
     public LineData(int no,String line) {
         this(null,no,line);
@@ -34,6 +41,11 @@ public class LineData implements Line {
     @Override
     public int length() {
         return line==null?0:line.length();
+    }
+
+    @Override
+    public long timestamp() {
+        return timestamp;
     }
 
     @Override
