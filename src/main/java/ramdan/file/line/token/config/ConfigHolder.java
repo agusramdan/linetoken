@@ -31,11 +31,17 @@ public class ConfigHolder {
             var obj = getConfig(cls);
             if(obj == null) {
                 obj = cls.newInstance();
-                FileConfigHolder.read(obj.configListener);
+                setup(obj);
                 add( obj);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void setup(ConfigToken obj){
+        if(obj == null) throw new NullPointerException("Config object canot be null");
+        FileConfigHolder.read(obj.configListener);
+
     }
 }

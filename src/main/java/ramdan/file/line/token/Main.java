@@ -1,4 +1,6 @@
 package ramdan.file.line.token;
+import lombok.val;
+import lombok.var;
 import ramdan.file.line.token.config.FileConfigHolder;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.Statistic;
@@ -16,14 +18,17 @@ public class Main {
     public static Main main = new Main();
 
     private Map<String,String> parameters = new HashMap<>();
-    private List<LineToken> lineTokenHolder ;
-    private Set<String> filterRule;
-    private Map<String,String> mappingRule;
+    //private List<LineToken> lineTokenHolder ;
+    //private Set<String> filterRule;
+    //private Map<String,String> mappingRule;
     private PrintStream output;
     private Statistic statistic;
     private HandlerFactory handlerFactory;
     private FilterComplex filterComplex;
-
+    private ExecutorService executorService;
+    public String getArgumentParameter(String key){
+        return parameters.get(key);
+    }
     /**
      * Populate Argument
      * -i         : input directory of file
@@ -31,16 +36,10 @@ public class Main {
      * -trim      : trim token
      * -save      : save / canonical string
      * -empty     : null to empty
-     * -map       :
-     * -mb        : map block start tag to end ex -mb PSTS,BSTARTPSTS,BENDPSTS,PSTS_1,PSTS_2;
      * -intern    :
      * -statistic :
-     * -hold      :
      * -silent    :
-     * -fc        : filter complex
-     * -fx        : filter regex
-     * -filter    :
-     * -hf        : handler factory
+     * -hf        : handler file factory
      * -hfcfg     : file config for handler factory
      * -df        : distribution file to multiple directory method copy,move ex. copy,move,sample,
      * -dfn       : pre neame drectory ex: P  (optional)
@@ -56,7 +55,7 @@ public class Main {
             }else
             if(arg.startsWith("-")){
                 param = arg;
-                if(StringUtils.equalOnce(param,"-trim","-save", "-empty","-intern","-statistic","-hold", "-silent")){
+                if(StringUtils.equalOnce(param,"-trim","-save", "-empty","-intern","-statistic", "-silent")){
                     parameters.put(param,"true");
                     param = null;
                 }else
@@ -76,106 +75,6 @@ public class Main {
         }
         StringSave.args(args);
         LineTokenData.args(args);
-    }
-    public String getArgumentParameter(String key){
-        return this.parameters.get(key);
-    }
-    private void process() throws IOException {
-        process(null);
-    }
-    private void process(File input) throws IOException {
-        process(input,null).run();
-    }
-    private DefaultFileHandler process(File input,File output) throws IOException {
-        List<LineTokenHandler> list = new ArrayList<>();
-
-        if(statistic!=null){
-            statistic.add(input);
-            list.add(new StatisticLineTokenHandler(statistic));
-        }
-        if(handlerFactory != null) {
-            list.add(handlerFactory.getStartLineTokenHandler());
-        }
-        if(parameters.containsKey("-fcs")){
-            String cls =parameters.get("-fcs");
-            addFilterHandlers(list,cls);
-        }
-        if(filterComplex!=null){
-            list.add(new FilterComplexLineTokenHandler(filterComplex));
-        }
-
-        if(parameters.containsKey("-fx")){
-            list.add(new RegexLineTokenHandler(parameters.get("-fx")));
-        }
-
-        if(filterRule!=null){
-            list.add(new FilterLineTokenHandler(filterRule));
-        }
-
-        if(parameters.containsKey("-mcs")){
-            String cls =parameters.get("-mcs");
-            addMappingHandlers(list,cls);
-        }
-        // mapping
-        if(mappingRule !=null){
-            list.add(new MappingLineTokenHandler(mappingRule));
-        }
-
-        if(lineTokenHolder != null){
-            list.add(new ListLineTokenHandler(lineTokenHolder));
-        }
-        if(handlerFactory!=null){
-            handlerFactory.loadContentLineTokenHandlers(list);
-        }
-
-        PrintStream printStream = null;
-        OutputLineTokenHandler outputLineTokenHandler = null;
-        try {
-            LineTokenHandler outputHandler= null;
-            if (handlerFactory != null) {
-                outputHandler = handlerFactory.getOutputLineTokenHandler();
-            }
-            if(outputHandler == null){
-                if (output != null) {
-                    printStream = new PrintStream(output);
-                    outputHandler = new PrintStreamLineTokenHandler(new PrintStream(output));
-                } else if (this.output != null) {
-                    outputHandler = new PrintStreamLineTokenHandler(this.output);
-                }
-            }
-            if(outputHandler!=null){
-                if(outputHandler instanceof OutputLineTokenHandler){
-                    outputLineTokenHandler = (OutputLineTokenHandler) outputHandler;
-                    outputLineTokenHandler.setFileOutput(output);
-                    outputLineTokenHandler.setFileInput(input);
-                    String directory = parameters.get("-o");
-                    if (directory != null) {
-                        outputLineTokenHandler.setBaseDirectoryOutput(new File(directory));
-                    }
-                    if(input != null) {
-                        directory = parameters.get("-i");
-                        if (directory != null) {
-                            outputLineTokenHandler.setBaseDirectoryInput(new File(directory));
-                        }
-                    }
-                }
-                list.add(outputHandler);
-            }
-            if (handlerFactory != null) {
-                list.add(handlerFactory.getFinallyLineTokenHandler());
-            }
-            DefaultFileHandler dfh = new DefaultFileHandler();
-            dfh.setInput(input);
-            dfh.setList(list);
-            return dfh;
-        }finally{
-            if(outputLineTokenHandler != null){
-                outputLineTokenHandler.flush();
-            }
-            StreamUtils.flushIgnore(printStream);
-            StreamUtils.closeIgnore(outputLineTokenHandler);
-            StreamUtils.closeIgnore(printStream);
-        }
     }
 
     private Map <String,Object> cacheInstance = new HashMap<>();
@@ -207,37 +106,6 @@ public class Main {
         return (obj instanceof HandlerFactory)
         ? (HandlerFactory) obj:null;
     }
-
-    private void addFilterHandlers(List<LineTokenHandler> list, String cls)  {
-        String[] clss = cls.split(",");
-        for (String c: clss) {
-            Object obj = getInstance(c);
-            if(obj!= null) {
-                if(obj instanceof FilterComplex){
-                    list.add(new FilterComplexLineTokenHandler((FilterComplex)obj));
-                }else if(obj instanceof RegexMatchRule){
-                    list.add(new RegexLineTokenHandler((RegexMatchRule)obj));
-                }else{
-                    list.add((LineTokenHandler) obj);
-                }
-            }
-        }
-    }
-    private void addMappingHandlers(List<LineTokenHandler> list, String cls)  {
-        String[] clss = cls.split(",");
-        for (String c: clss) {
-            Object obj = getInstance(c);
-            if(obj!= null) {
-//                if(obj instanceof MultiLineTokenFilter){
-//                    list.add(new MappingMultiLineTokenHandler((MultiLineTokenFilter) obj));
-//                }else
-                if(obj instanceof LineTokenHandler){
-                    list.add((LineTokenHandler) obj);
-                }
-            }
-        }
-    }
-
 
     private void processDirectory(final  File directoryInput, final File directoryOutput) throws IOException {
         String df = parameters.get("-df");
@@ -282,92 +150,54 @@ public class Main {
 
     }
     private void processContent(final File input, File output) throws IOException{
-        final boolean isDirectoryOutput = output!=null && output.isDirectory();
+        val dh = new DefaultDirectoryHandler();
+        dh.setExecutorService(executorService);
+        dh.setParameters(new HashMap<>(parameters));
         if(Boolean.parseBoolean(parameters.get("-statistic"))){
             statistic = new Statistic();
             statistic.setInput(parameters.get("-i"));
             statistic.setInputExt(parameters.get("-ix"));
             statistic.setOutput(parameters.get("-o"));
-        }
-        if(Boolean.parseBoolean(parameters.get("-hold"))){
-            lineTokenHolder = new ArrayList<>();
+            dh.setStatistic(statistic);
         }
         if(parameters.containsKey("-hf")){
             handlerFactory=getHandlerFactory(parameters.get("-hf"));
             if(handlerFactory!= null){
                 handlerFactory.loadConfig(parameters.get("-hfcfg"));
+                dh.setHandlerFactory(handlerFactory);
             }
         }
         if(parameters.containsKey("-fc")){
             File file = new File(parameters.get("-fc"));
             filterComplex = FilterComplex.read(file);
+            dh.setFilterComplex(filterComplex);
         }
         String extension = parameters.get("-ox");
         if(extension!=null  && !extension.startsWith(".")) extension = "."+extension;
+        dh.setOutputExtension(extension);
 
-        if(input !=null && input.isDirectory()){
-            List<File> fileList = StreamUtils.listFilesRecursive(input,  new ExtensionFileFilter(parameters.get("-ix")));
-            ExecutorService executorService =Executors.newFixedThreadPool(10);
-            List<Future> data = new ArrayList<>();
-            for (File fileInput:fileList) {
-                File fileOutput;
-                if(isDirectoryOutput){
-                    String fileName = StreamUtils.relative(input,fileInput);
-                    if(extension!=null && !fileName.endsWith(extension)){
-                        fileName = fileName+extension;
-                    }
-                    fileOutput = new File(output,fileName);
-                    fileOutput.getParentFile().mkdirs();
-                }else {
-                    fileOutput = output;
-                }
-
-                data.add(executorService.submit(process(fileInput,fileOutput)));
+        if(output!=null){
+            if(output.isDirectory()){
+                dh.setOutputDirectory(output);
+            }else {
+                dh.setOutputFile(output);
             }
-            int i=0;
-            while (!data.isEmpty()){
-                try {
-                    data.get(i).get(1, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    //e.printStackTrace();
+        }
+        if(input !=null ) {
+            if(input.isDirectory()) {
+                dh.setInputDirectory(input);
+                if(output==null){
+                    dh.setOutputDirectory(input);
                 }
-
-                if(data.get(i).isDone()){
-                    data.remove(i);
-                }else {
-                    i++;
-                }
-                if(i>=data.size()){
-                    i=0;
-                }
-
-
-            }
-            executorService.shutdown();
-        }else{
-            if(input != null){
-
-                File fileOutput ;
-                if(isDirectoryOutput){
-                    String fileName = input.getName();
-                    if(extension!=null && !fileName.endsWith(extension)){
-                        fileName = fileName+extension;
-                    }
-                    fileOutput = new File(output,fileName);
-                    fileOutput.getParentFile().mkdirs();
-                }else {
-                    fileOutput = output;
-                }
-                process(input,fileOutput).run();
             }else{
-                process();
+                dh.setInputFile(input);
+                if(output==null){
+                    dh.setOutputDirectory(input.getParentFile());
+                }
             }
         }
-        if(statistic!=null) {
-            this.statistic.print(System.out);
-        }
+        dh.run();
     }
-
 
     public void runNoFileInput(){
         List<String> list = new ArrayList<>();
@@ -398,11 +228,20 @@ public class Main {
         }else{
             outputFile = new File(outputString);
         }
+        int threadSize = 2;
+        val thread=parameters.get("-thread");
+
+        if(thread!=null){
+            threadSize = Integer.parseInt(thread);
+        }
+        executorService =Executors.newFixedThreadPool(threadSize);
+
         if(parameters.containsKey("-df")){
             processDirectory(inputFile,outputFile);
         }else {
             processContent(inputFile, outputFile);
         }
+        executorService.shutdown();
     }
 
     public static void main(String ... args) throws IOException {
@@ -423,7 +262,5 @@ public class Main {
                     (file.isFile() && (extension==null ||file.getName().endsWith(extension)));
         }
     }
-
-
 
 }

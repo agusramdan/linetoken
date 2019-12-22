@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.io.File;
 
 public interface OutputLineTokenHandler extends LineTokenHandler, Closeable {
+    void setExtension(String extension);
     void setFileInput(File input);
     void setBaseDirectoryInput(File baseInput);
     void setFileOutput(File input);

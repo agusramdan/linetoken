@@ -23,15 +23,28 @@ public class FileConfigHolder {
             configLineToken.add(lineToken);
         }
     };
+
     public static void load(String config) throws IOException {
         if(StringUtils.isEmpty(config)) return;
-        String  [] fileConfigs =config.split(",");
-        for (String fc : fileConfigs) {
-            load(new File(fc));
-        }
+        load(configListener,config.split(","));
     }
+
     public static void load(File config) throws IOException {
         StreamUtils.readLine(config,configListener);
+    }
+
+    public static void load(LineTokenListener configListener,String...fileConfigs) throws IOException {
+        for (String fc : fileConfigs) {
+            if(StringUtils.notEmpty(fc)) {
+                StreamUtils.readLine(new File(fc), configListener);
+            }
+        }
+    }
+
+    public static void load(LineTokenListener configListener,File...fileConfigs) throws IOException {
+        for (File fc : fileConfigs) {
+            StreamUtils.readLine(fc,configListener);
+        }
     }
     public static void read(LineTokenListener listener) {
         for (LineToken lt: configLineToken) {
