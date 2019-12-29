@@ -224,7 +224,7 @@ public class Main {
             filterComplex = FilterComplex.read(file);
         }
         val tsample = parameters.get("-tsample");
-        if(StringUtils.notEmpty(tsample)){
+        if(StringUtils.notEmpty(parameters.get("-tsample"))||StringUtils.notEmpty(parameters.get("-tcontent"))){
             if(StringUtils.isEmpty(parameters.get("-ox"))){
                 parameters.put("-ox",".spl");
             }

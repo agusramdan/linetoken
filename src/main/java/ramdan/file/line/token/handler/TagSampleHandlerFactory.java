@@ -22,6 +22,7 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
     private String tokenStart;
     private String tokenEnd;
     private RegexMatchRule tokenSample;
+    private String[] tokenContents;
     private boolean ready=false;
     private int maxData=3;
     private long maxLength= 1024*1024; //1mb
@@ -90,6 +91,14 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
             tokens = tokens.replaceAll(",","|");
         }
         tokenSample = new RegexMatchRule(tokens);
+        val contents =StringUtils.emptyDefault(parameters.get("-tsample"),"");
+        if(contents.contains(",")) {
+            tokenContents = contents.trim().split("\\s*,\\s*");
+        }else if(StringUtils.notEmpty(contents)) {
+            tokenContents = new String[]{contents};
+        }else {
+            tokenContents = new String[0];
+        }
     }
 
     @Override
@@ -190,7 +199,7 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
         protected Tokens startTagHandle(LineToken lineToken) {
             tags = new HashSet<>();
             try {
-                temporary = File.createTempFile("tag_",".spl.tmp");
+                temporary = File.createTempFile("tag_",".spl.tmp",baseDirectoryOutput);
                 printStream= new PrintStream(temporary);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -247,9 +256,18 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
         @Override
         protected Tokens matchContent(LineToken lineToken) {
             if(!skip) {
-                if (tokenSample.accept(lineToken)) {
-                    found = true;
+                boolean accept=tokenSample.accept(lineToken);
+                if(!accept){
+                    for (String test:tokenContents) {
+                        if(lineToken.getSource().containIgnoreCase(test)){
+                            accept=true;
+                            break;
+                        }
+                    }
+                }
+                if(accept){
                     tags.add(lineToken.getTagname());
+                    found=true;
                 }
                 if (!lineToken.isEmpty()) {
                     val line = lineToken.getSource();

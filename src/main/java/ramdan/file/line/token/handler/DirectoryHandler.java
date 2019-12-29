@@ -156,17 +156,26 @@ public class DirectoryHandler implements Runnable{
             }
         }
     }
-    public static class ExtensionFileFilter implements FileFilter {
-        private String extension;
+    public static class ExtensionFileFilter implements FileFilter{
+        private String[] extensions;
 
         public ExtensionFileFilter(String inputExtension) {
-            this.extension = inputExtension;
+            this.extensions = inputExtension!=null? inputExtension.trim().split("\\s*,\\s*"):new String[0];
         }
 
+        public boolean accept(String name){
+            if(extensions.length==0) return true;
+            for (String str: extensions) {
+                if(name.endsWith(str)){
+                    return true;
+                }
+            }
+            return false;
+        }
         @Override
         public boolean accept(File file) {
             return file.isDirectory() ||
-                    (file.isFile() && (extension==null ||file.getName().endsWith(extension)));
+                    (file.isFile() && accept(file.getName()));
         }
     }
 }

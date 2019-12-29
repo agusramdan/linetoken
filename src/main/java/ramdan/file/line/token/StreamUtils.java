@@ -138,8 +138,10 @@ public class StreamUtils {
 
     public static List<File> listFilesRecursive(File file, FileFilter fileFilter){
         List<File> fileList = new ArrayList<>();
+        if(file==null) return fileList;
         if(file.isDirectory()){
             File[] files=file.listFiles(fileFilter);
+            if (files == null) return fileList;
             for (File f:files) {
                 fileList.addAll(listFilesRecursive(f,fileFilter));
             }
