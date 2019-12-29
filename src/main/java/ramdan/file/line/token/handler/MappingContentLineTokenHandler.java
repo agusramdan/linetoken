@@ -72,7 +72,7 @@ public class MappingContentLineTokenHandler extends DefaultLineTokenHandler {
         reset();
         return MultiLineData.merge(
                 result,
-                endTagHandle(lineToken));
+                startTagHandle(lineToken));
     }
 
     protected Tokens matchContent(LineToken lineToken){

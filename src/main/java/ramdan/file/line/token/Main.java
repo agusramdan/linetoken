@@ -1,6 +1,5 @@
 package ramdan.file.line.token;
 import lombok.val;
-import lombok.var;
 import ramdan.file.line.token.config.FileConfigHolder;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.Statistic;
@@ -77,34 +76,33 @@ public class Main {
         LineTokenData.args(args);
     }
 
-    private Map <String,Object> cacheInstance = new HashMap<>();
-
     private Object getInstance(String c){
         if(c == null || c.isEmpty()) return null;
-        Object obj =null;
-        if(cacheInstance.containsKey(c)){
-            obj = cacheInstance.get(c);
-        }
-        if(obj== null) {
-            try {
-                obj = Class.forName(c).newInstance();
-                if(obj instanceof FilterComplex||
-                        obj instanceof RegexMatchRule||
-                        obj instanceof MultiLineTokenFilter||
-                        obj instanceof HandlerFactory
-                ){
-                    cacheInstance.put(c,obj);
-                }
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
+        try{
+            val obj = Class.forName(c).newInstance();
+            if(obj instanceof HandlerFactory){
+                val hf = (HandlerFactory) obj;
+                hf.loadConfig(parameters.get("-hfcfg"));
             }
+            if(obj instanceof AbstractHandlerFactory){
+                val ahf = (AbstractHandlerFactory) obj;
+                ahf.setParameters(new HashMap<>(parameters));
+
+            }
+            return obj;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return obj;
     }
-    private HandlerFactory getHandlerFactory(String c){
-        Object obj = getInstance(c);
-        return (obj instanceof HandlerFactory)
-        ? (HandlerFactory) obj:null;
+
+    private void setupHandlerFactory(){
+        if(!parameters.containsKey("-hf")){
+            return;
+        }
+        Object obj = getInstance(parameters.get("-hf"));
+        if(obj instanceof HandlerFactory){
+            handlerFactory= (HandlerFactory) obj;
+        }
     }
 
     private void processDirectory(final  File directoryInput, final File directoryOutput) throws IOException {
@@ -147,35 +145,14 @@ public class Main {
                 System.out.printf("copy %d files,  %d bytes \n",count,sumLength);
             }
         }
-
     }
     private void processContent(final File input, File output) throws IOException{
         val dh = new DefaultDirectoryHandler();
         dh.setExecutorService(executorService);
         dh.setParameters(new HashMap<>(parameters));
-        if(Boolean.parseBoolean(parameters.get("-statistic"))){
-            statistic = new Statistic();
-            statistic.setInput(parameters.get("-i"));
-            statistic.setInputExt(parameters.get("-ix"));
-            statistic.setOutput(parameters.get("-o"));
-            dh.setStatistic(statistic);
-        }
-        if(parameters.containsKey("-hf")){
-            handlerFactory=getHandlerFactory(parameters.get("-hf"));
-            if(handlerFactory!= null){
-                handlerFactory.loadConfig(parameters.get("-hfcfg"));
-                dh.setHandlerFactory(handlerFactory);
-            }
-        }
-        if(parameters.containsKey("-fc")){
-            File file = new File(parameters.get("-fc"));
-            filterComplex = FilterComplex.read(file);
-            dh.setFilterComplex(filterComplex);
-        }
-        String extension = parameters.get("-ox");
-        if(extension!=null  && !extension.startsWith(".")) extension = "."+extension;
-        dh.setOutputExtension(extension);
-
+        dh.setStatistic(statistic);
+        dh.setHandlerFactory(handlerFactory);
+        dh.setFilterComplex(filterComplex);
         if(output!=null){
             if(output.isDirectory()){
                 dh.setOutputDirectory(output);
@@ -196,6 +173,7 @@ public class Main {
                 }
             }
         }
+        dh.prepare();
         dh.run();
     }
 
@@ -235,6 +213,25 @@ public class Main {
             threadSize = Integer.parseInt(thread);
         }
         executorService =Executors.newFixedThreadPool(threadSize);
+        if(Boolean.parseBoolean(parameters.get("-statistic"))){
+            statistic = new Statistic();
+            statistic.setInput(parameters.get("-i"));
+            statistic.setInputExt(parameters.get("-ix"));
+            statistic.setOutput(parameters.get("-o"));
+        }
+        if(parameters.containsKey("-fc")){
+            File file = new File(parameters.get("-fc"));
+            filterComplex = FilterComplex.read(file);
+        }
+        val tsample = parameters.get("-tsample");
+        if(StringUtils.notEmpty(tsample)){
+            if(StringUtils.isEmpty(parameters.get("-ox"))){
+                parameters.put("-ox",".spl");
+            }
+            parameters.put("-hf",TagSampleHandlerFactory.class.getName());
+        }
+
+        setupHandlerFactory();
 
         if(parameters.containsKey("-df")){
             processDirectory(inputFile,outputFile);
@@ -250,16 +247,25 @@ public class Main {
     }
 
     public static class ExtensionFileFilter implements FileFilter{
-        private String extension;
+        private String[] extensions;
 
         public ExtensionFileFilter(String inputExtension) {
-            this.extension = inputExtension;
+            this.extensions = inputExtension!=null? inputExtension.trim().split("\\s*,\\s*"):new String[0];
         }
 
+        public boolean accept(String name){
+            if(extensions.length==0) return true;
+            for (String str: extensions) {
+                if(name.endsWith(str)){
+                    return true;
+                }
+            }
+            return false;
+        }
         @Override
         public boolean accept(File file) {
             return file.isDirectory() ||
-                    (file.isFile() && (extension==null ||file.getName().endsWith(extension)));
+                    (file.isFile() && accept(file.getName()));
         }
     }
 

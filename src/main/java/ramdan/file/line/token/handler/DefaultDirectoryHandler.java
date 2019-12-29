@@ -27,18 +27,21 @@ public class DefaultDirectoryHandler extends DirectoryHandler implements Runnabl
     @Setter
     private HandlerFactory handlerFactory;
 
-//    @Setter
-//    private Set<String> filterRule;
-
     @Setter
     private FilterComplex filterComplex;
 
     @Setter
     private PrintStream defaultStreamOutput;
 
+    private boolean ready=false;
     @Override
-    protected void prepare() {
+    public void prepare() {
         super.prepare();
+        if(ready) return;
+        ready=true;
+        if(handlerFactory!= null){
+            handlerFactory.prepare();
+        }
         if(inputFile!=null){
             singeInputFile=true;
             singeOutputFile=true;
@@ -66,6 +69,10 @@ public class DefaultDirectoryHandler extends DirectoryHandler implements Runnabl
         if(statistic!=null) {
             this.statistic.print(System.out);
         }
+        if(handlerFactory!=null){
+            val cb =handlerFactory.getFinishCallback();
+            if(cb!=null) cb.call(this);
+        }
     }
 
     public DefaultFileHandler createFileHandler(File input) {
@@ -87,19 +94,8 @@ public class DefaultDirectoryHandler extends DirectoryHandler implements Runnabl
             list.add(new RegexLineTokenHandler(getParameters().get("-fx")));
         }
 
-//        if(filterRule!=null){
-//            list.add(new FilterLineTokenHandler(filterRule));
-//        }
-
         addMappingHandlers(list);
-        // mapping
-//        if(mappingRule !=null){
-//            list.add(new MappingLineTokenHandler(mappingRule));
-//        }
 
-//        if(lineTokenHolder != null){
-//            list.add(new ListLineTokenHandler(lineTokenHolder));
-//        }
         if (handlerFactory != null) {
             handlerFactory.loadContentLineTokenHandlers(list);
         }

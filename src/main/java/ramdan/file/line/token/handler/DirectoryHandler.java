@@ -43,7 +43,10 @@ public class DirectoryHandler implements Runnable{
 
     private List<Future> data = new ArrayList<>();
 
-    protected void prepare(){
+    private boolean ready=false;
+    public void prepare() {
+        if(ready) return;
+        ready=true;
         if(outputExtension==null) {
             String extension = parameters.get("-ox");
             if (extension != null){
@@ -52,9 +55,11 @@ public class DirectoryHandler implements Runnable{
             }
         }
     }
+
     protected void submit( Runnable handler){
         data.add(executorService.submit(handler));
     }
+
     protected void waitUntilFinish(){
         int i=0;
         while (!data.isEmpty()){
@@ -82,7 +87,6 @@ public class DirectoryHandler implements Runnable{
             submit(createFileHandler(fileInput));
         }
         waitUntilFinish();
-
     }
 
     protected Runnable createFileHandler(File fileInput) {

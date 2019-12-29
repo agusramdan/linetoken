@@ -126,4 +126,8 @@ public class StringUtils {
                 .replaceFirst("-","")
                 .replaceFirst("\\(","").replaceAll("\\)","");
     }
+
+    public static String emptyDefault(String value, String defaultString) {
+        return isEmpty(value)?defaultString:value;
+    }
 }
