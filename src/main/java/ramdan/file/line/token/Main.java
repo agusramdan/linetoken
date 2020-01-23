@@ -223,14 +223,18 @@ public class Main {
             File file = new File(parameters.get("-fc"));
             filterComplex = FilterComplex.read(file);
         }
-        val tsample = parameters.get("-tsample");
         if(StringUtils.notEmpty(parameters.get("-tsample"))||StringUtils.notEmpty(parameters.get("-tcontent"))){
             if(StringUtils.isEmpty(parameters.get("-ox"))){
                 parameters.put("-ox",".spl");
             }
             parameters.put("-hf",TagSampleHandlerFactory.class.getName());
         }
-
+        if(StringUtils.notEmpty(parameters.get("-dsample"))){
+            if(StringUtils.isEmpty(parameters.get("-ox"))){
+                parameters.put("-ox",".spl");
+            }
+            parameters.put("-hf",DocSampleHandlerFactory.class.getName());
+        }
         setupHandlerFactory();
 
         if(parameters.containsKey("-df")){

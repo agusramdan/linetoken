@@ -130,4 +130,13 @@ public class StringUtils {
     public static String emptyDefault(String value, String defaultString) {
         return isEmpty(value)?defaultString:value;
     }
+
+    public static String[] trim(String... values) {
+        for (int i = 0; i < values.length; i++) {
+            if( values[i]!=null){
+                values[i]=values[i].trim();
+            }
+        }
+        return values;
+    }
 }
