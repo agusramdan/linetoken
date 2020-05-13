@@ -59,7 +59,7 @@ get PRODUCT_ID with value = 1234
 ### Block data query
 
 ```text
-
+struc DOC=DOCSTART_1->DOCEND
 struc PRODUCT=BSTARTPRODUCT->BENDPRODUCT 
 get PRODUCT with PRODUCT_ID = 1234
 union
