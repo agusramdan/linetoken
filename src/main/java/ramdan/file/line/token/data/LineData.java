@@ -15,6 +15,7 @@ import java.lang.ref.WeakReference;
  * immutable class
  */
 public class LineData implements Line {
+
     public final static long check_timestamp = Line.default_time;
     @Getter
     private final File source;
@@ -22,15 +23,33 @@ public class LineData implements Line {
     private final int no;
     @Getter
     private final String line;
-    @Getter private final long timestamp;
+
+    @Getter
+    private final long timestamp;
+
+    private final boolean eof;
     public LineData(File source, int no, String line,long timestamp) {
         this.source = source;
         this.no = no;
         this.line = line;
         this.timestamp=timestamp;
+        this.eof = false;
+    }
+    public LineData(File source, int no, long timestamp) {
+        this.source = source;
+        this.no = no;
+        this.line=null;
+        this.timestamp=timestamp;
+        this.eof = true;
     }
     public LineData(File source, int no, String line) {
         this(source, no,line,System.currentTimeMillis());
+    }
+    public LineData(File source, int no) {
+        this(source, no,System.currentTimeMillis());
+    }
+    public LineData(File source) {
+        this(source, -1,System.currentTimeMillis());
     }
     public LineData(int no,String line) {
         this(null,no,line);
@@ -38,7 +57,6 @@ public class LineData implements Line {
     public LineData(String line) {
         this(null,0,line);
     }
-
     @Override
     public int length() {
         return line==null?0:line.length();
@@ -56,7 +74,7 @@ public class LineData implements Line {
 
     @Override
     public boolean isEOF() {
-        return line==null;
+        return eof;
     }
 
     @Override

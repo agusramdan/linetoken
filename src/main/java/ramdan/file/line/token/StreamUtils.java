@@ -2,10 +2,7 @@ package ramdan.file.line.token;
 
 import lombok.extern.slf4j.Slf4j;
 import ramdan.file.line.token.data.LineData;
-import ramdan.file.line.token.data.LineTokenData;
-import ramdan.file.line.token.filter.FilterComplex;
 import ramdan.file.line.token.handler.Callback;
-import ramdan.file.line.token.listener.DefaultLineTokenListener;
 import ramdan.file.line.token.listener.DelegateLineListener;
 import ramdan.file.line.token.listener.LineListener;
 import ramdan.file.line.token.listener.LineTokenListener;
@@ -39,7 +36,7 @@ public class StreamUtils {
                 Line line = new LineData(input,reader.getLineNumber(),str);
                 listener.event(line);
             }
-            listener.event(new LineData(input,reader.getLineNumber(),null));
+            listener.event(new LineData(input,reader.getLineNumber()));
         }
     }
     public static void readLine(File input, LineListener listener) throws IOException {
@@ -50,7 +47,7 @@ public class StreamUtils {
                 Line line = new LineData(input,reader.getLineNumber(),str);
                 listener.event(line);
             }
-            listener.event(new LineData(input,reader.getLineNumber(),null));
+            listener.event(new LineData(input,reader.getLineNumber()));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -63,7 +60,7 @@ public class StreamUtils {
                 Line line = new LineData(null,reader.getLineNumber(),str);
                 listener.event(line);
             }
-            listener.event(new LineData(null,reader.getLineNumber(),null));
+            listener.event(new LineData(null,reader.getLineNumber()));
         }catch (Exception e){
             e.printStackTrace();
         }

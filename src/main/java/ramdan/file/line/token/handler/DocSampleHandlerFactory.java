@@ -1,13 +1,14 @@
 package ramdan.file.line.token.handler;
 
-import lombok.AllArgsConstructor;
 import lombok.Setter;
 import lombok.val;
 import lombok.var;
 import ramdan.file.line.token.*;
+import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.DefaultMultiLineTokenFilter;
 import ramdan.file.line.token.filter.RegexMatchRule;
+import ramdan.file.line.token.listener.LineListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +23,6 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
     private String tagStart;
     private String tagEnd;
     private RegexMatchRule tagSample;
-    private String[] tagValue;
     private boolean ready=false;
     private boolean exclude=false;
 
@@ -31,24 +31,81 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
         super.prepare();
         if(ready) return;
         ready=true;
-        tagStart = StringUtils.emptyDefault(parameters.get("-dstart"),"DOCSTART_\\d+");
-        tagEnd = StringUtils.emptyDefault(parameters.get("-dend"),"DOCEND");
-
-        var tags =StringUtils.emptyDefault(parameters.get("-dtag"),"ACCOUNTNO");
+        tagStart = StringUtils.emptyDefault(parameters.get("-ds"),"DOCSTART_\\d+");
+        tagEnd = StringUtils.emptyDefault(parameters.get("-de"),"DOCEND");
+        val tagIndexValue = parameters.get("-dtxv");
+        var tags =StringUtils.emptyDefault(parameters.get("-dt"),"ACCOUNTNO");
         if(tags.contains(",")){
             tags = tags.replaceAll(",","|");
         }
-        exclude = Boolean.valueOf(parameters.get("-dexclude"));
-        tagSample = new RegexMatchRule(tags);
-        val contents =StringUtils.emptyDefault(parameters.get("-dsample"),"");
-        if(contents.contains(",")) {
-            tagValue = StringUtils.trim(contents.trim().split("\\s*,\\s*"));
-        }else if(StringUtils.notEmpty(contents)) {
-            tagValue = new String[]{contents};
-        }else {
-            tagValue = new String[0];
+        exclude = Boolean.valueOf(parameters.get("-dfx"));
+        boolean contain = Boolean.valueOf(parameters.get("-dvc"));
+
+        final List<String> listValues = new ArrayList<String>();
+        val listener = new LineListener(){
+            @Override
+            public void event(Line line) {
+                if(line.isEmpty()) return;
+                val contents = line.getLine();
+                if(contents.contains(",")) {
+                    listValues.addAll(Arrays.asList(StringUtils.trim(contents.trim().split("\\s*,\\s*"))));
+                }else if(StringUtils.notEmpty(contents)) {
+                    listValues.add(contents);
+                }
+            }
+        };
+
+        listener.event(new LineData(parameters.get("-dv")));
+
+        val fsample = parameters.get("-dvf");
+        if(StringUtils.notEmpty(fsample)){
+            val file = new File(fsample);
+            if(!file.exists() || !file.isFile()){
+                System.err.println("-dfx file no found "+fsample);
+                throw new RuntimeException("-dfx file no found "+fsample);
+            }
+            try {
+                StreamUtils.readLine(new File(fsample),listener);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
+
+        if(StringUtils.notEmpty(tagIndexValue)){
+            val data= tagIndexValue.split(",");
+            if(data.length!=3){
+                System.err.println("chek paramtert -dv or -dvf");
+                throw new RuntimeException("Error listValues");
+            }
+            tagSample = new TagIndexValueMatchRule(data[0],Integer.valueOf(data[1]),data[2]);
+        }else {
+            if(listValues.isEmpty()){
+                // error no value
+                System.err.println("NO value filter/exclude");
+                if(parameters.get("-dv")==null){
+                    System.err.println("chek paramtert -dv or -dvf");
+                }
+                throw new RuntimeException("Error listValues");
+            }
+
+            String[] tagValue = listValues.toArray(new String[listValues.size()]);
+            tagSample = new TagValueMatchRule(tags, tagValue, contain);
+        }
+
+        if(Main.verbose) {
+            System.out.println("Running with parameter:");
+
+            val args = new String[]{"-i", "-ix", "-o", "-ox", "-ds", "-de", "-dt", "-dfx", "-dvc", "-dv", "-dvf"};
+
+            for (String str : args) {
+                val value = parameters.get(str);
+                if (StringUtils.notEmpty(value)) {
+                    System.out.format(" %s = %s \n", str, value);
+                }
+            }
+            System.out.println();
+        }
     }
 
     @Override
@@ -84,8 +141,7 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
     class FinishCallback implements Callback{
         @Override
         public void call(Object o) {
-            System.out.print("End");
-
+            System.out.println("exclude = "+exclude);
         }
     }
 
@@ -109,6 +165,7 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
         @Setter
         String extension;
         private boolean found;
+        private List<String> foundData=new ArrayList<>();
         //private boolean skip=false;
         private File temporary;
         private PrintStream printStream;
@@ -200,10 +257,8 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
 
         @Override
         protected Tokens matchContent(LineToken lineToken) {
-            if(tagSample.accept(lineToken) && lineToken.equalIgnoreCase(1,tagValue)){
-                //tags.add(lineToken.getTagname());
-                System.out.printf("found at file : %s for data : %s \n",lineToken.getFileName(), lineToken.getSource().getLine());
-
+            if(tagSample.accept(lineToken)){
+                foundData.add(lineToken.getSource().getLine());
                 found=true;
             }
             if (!lineToken.isEmpty()) {
@@ -222,9 +277,53 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
         }
         @Override
         public void close() throws IOException {
+            val out = System.out;
+            synchronized (out){
+                if(this.foundData.isEmpty()){
+                    out.printf("not found at file : %s \n\n",fileInput.getName());
+                }else {
+                    out.printf("found at file : %s \n",fileInput.getName());
+                    for (String line : foundData) {
+                      out.println(line);
+                    }
+                    out.println();
+                }
+            }
+        }
+    }
 
+    private class TagValueMatchRule extends RegexMatchRule {
+        private String[] tagValue;
+        private boolean contain=false;
+
+        public TagValueMatchRule(String regex, String[] tagValue) {
+            super(regex);
+            this.tagValue = tagValue;
         }
 
+        public TagValueMatchRule(String regex, String[] tagValue, boolean contain) {
+            this(regex,tagValue);
+            this.contain = contain;
+        }
 
+        @Override
+        public boolean accept(LineToken lineToken) {
+            return super.accept(lineToken)&& (lineToken.equalIgnoreCase(1,tagValue) || contain && lineToken.containIgnoreCase(1,tagValue));
+        }
+    }
+    private class TagIndexValueMatchRule extends RegexMatchRule {
+        private int index;
+        private String value;
+
+        public TagIndexValueMatchRule(String regex, int index, String value) {
+            super(regex);
+            this.index = index;
+            this.value = value;
+        }
+
+        @Override
+        public boolean accept(LineToken lineToken) {
+            return super.accept(lineToken)&& (lineToken.equalIgnoreCase(index,value));
+        }
     }
 }
