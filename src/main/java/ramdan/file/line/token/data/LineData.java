@@ -111,6 +111,10 @@ public class LineData implements Line {
         if(isEOF() || this == REMOVE){
             return;
         }
+        if(isEmpty()){
+            ps.println();
+            return;
+        }
         ps.println(line);
     }
 
