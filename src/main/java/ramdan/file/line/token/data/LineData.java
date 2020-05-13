@@ -16,6 +16,8 @@ import java.lang.ref.WeakReference;
  */
 public class LineData implements Line {
 
+    public final static LineData EMPTY = new LineData(-1,null);
+    public final static LineData REMOVE = new LineData(-1,null);
     public final static long check_timestamp = Line.default_time;
     @Getter
     private final File source;
@@ -106,7 +108,7 @@ public class LineData implements Line {
 
     @Override
     public void println(PrintStream ps) {
-        if(isEOF()){
+        if(isEOF() || this == REMOVE){
             return;
         }
         ps.println(line);
