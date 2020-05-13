@@ -6,14 +6,14 @@ import ramdan.file.line.token.data.LineTokenData;
 
 public class DefaultLineTokenConverter implements LineTokenConverter {
     @Override
-    public LineToken convert(Line lineToken) {
-        if(lineToken==null){
+    public LineToken convert(Line line) {
+        if(line==null){
             return LineTokenData.EMPTY;
         }
-        if(lineToken.isEOF()){
+        if(line.isEOF()){
             return LineTokenData.EOF;
         }
 
-        return LineTokenData.parse(lineToken);
+        return LineTokenData.parse(line);
     }
 }
