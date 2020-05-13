@@ -16,9 +16,12 @@ public interface Line extends Serializable {
     long timestamp();
     boolean isEmpty();
     boolean isEOF();
+    boolean equal(String... parameter) ;
+    boolean equalIgnoreCase(String... parameter);
     boolean contain(String... parameter);
     boolean containAll(String... parameter);
     boolean containIgnoreCase(String... parameter);
     boolean containAllIgnoreCase(String... parameter);
     void println(PrintStream ps);
+    Line trim();
 }

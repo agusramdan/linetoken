@@ -6,7 +6,7 @@
 
     <groupId>ramdan.file</groupId>
     <artifactId>linetoken</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 
     <build>
         <plugins>
@@ -67,13 +67,13 @@
             <artifactId>lombok</artifactId>
             <version>1.18.8</version>
         </dependency>
-        <dependency>
-            <!-- CookCC is only needed at compile time -->
-            <groupId>org.yuanheng.cookcc</groupId>
-            <artifactId>cookcc</artifactId>
-            <version>0.4.3</version>
-            <scope>compile</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            &lt;!&ndash; CookCC is only needed at compile time &ndash;&gt;-->
+<!--            <groupId>org.yuanheng.cookcc</groupId>-->
+<!--            <artifactId>cookcc</artifactId>-->
+<!--            <version>0.4.3</version>-->
+<!--            <scope>compile</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>junit</groupId>

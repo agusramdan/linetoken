@@ -1,6 +1,7 @@
 package ramdan.file.line.token.data;
 
 import lombok.Getter;
+import lombok.val;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringUtils;
@@ -62,7 +63,14 @@ public class LineData implements Line {
     public boolean contain(String... parameter) {
         return StringUtils.contain(line,parameter);
     }
-
+    @Override
+    public boolean equal(String... parameter) {
+        return StringUtils.equal(line,parameter) ;
+    }
+    @Override
+    public boolean equalIgnoreCase(String... parameter) {
+        return StringUtils.equalIgnoreCase(line,parameter) ;
+    }
     @Override
     public boolean containAll(String... parameter) {
         return StringUtils.containAll(line,parameter);
@@ -80,7 +88,22 @@ public class LineData implements Line {
 
     @Override
     public void println(PrintStream ps) {
+        if(isEOF()){
+            return;
+        }
         ps.println(line);
+    }
+
+    @Override
+    public Line trim() {
+        if(length()>0){
+            val c = line.trim();
+            if(c.equals(line)){
+                return this;
+            }
+            return new LineData(source,no,c,timestamp);
+        }
+        return this;
     }
 
     @Override
