@@ -12,11 +12,15 @@ import java.util.Arrays;
 public final class LineTokenData extends LineTokenAbstract implements Traceable, Externalizable {
     private static final long serialversionUID = 20191127;
     public final static LineTokenData EMPTY = new LineTokenData();
+    public final static LineTokenData REMOVE = new LineTokenData();
     public final static LineTokenData EOF = new LineTokenData();
 
     public static LineToken parse(Line line){
         if(line==null|| line.isEOF()){
             return LineTokenAbstract.newEOF(line);
+        }
+        if(line == LineData.REMOVE){
+            return REMOVE;
         }
         LineTokenData lt = parse(line.getSource(),null,null,line.getNo(),line.toString());
         lt.setSource(line);

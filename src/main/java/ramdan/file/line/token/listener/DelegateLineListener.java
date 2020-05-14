@@ -23,10 +23,8 @@ public class DelegateLineListener implements LineListener {
 
     @Override
     public void event(Line line) {
-        if(line.isEOF()){
-            tokenListener.event(LineTokenAbstract.newEOF(line));
-        }else {
-            tokenListener.event(LineTokenData.parse(line));
-        }
+
+        tokenListener.event(tokenConverter.convert(line));
+
     }
 }

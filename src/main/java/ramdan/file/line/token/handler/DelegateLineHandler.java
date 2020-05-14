@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.*;
+import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.data.Traceable;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ public class DelegateLineHandler implements LineHandler {
     @Override
     public Line process(Line lineToken) {
         for (LineHandler h: handlers) {
+            if(lineToken == LineData.REMOVE) break;
             lineToken=h.process(lineToken);
         }
         return lineToken;

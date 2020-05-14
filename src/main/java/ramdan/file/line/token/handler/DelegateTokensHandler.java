@@ -24,9 +24,13 @@ public class DelegateTokensHandler implements TokensHandler,Callback<Tokens>{
         }
     }
     public Tokens process(Tokens lineToken){
+        if(lineToken==LineTokenData.REMOVE){
+            return LineTokenData.REMOVE;
+        }
         if(lineToken==null){
             return LineTokenData.EMPTY;
         }
+
         val next = new ArrayListCallback<Tokens>();
         processCallback(lineToken,next);
         return MultiLineData.tokens(next.getArrayList());
@@ -34,10 +38,15 @@ public class DelegateTokensHandler implements TokensHandler,Callback<Tokens>{
 
     @Override
     public void processCallback(Tokens tokes, Callback<Tokens> next) {
+        if(tokes==LineTokenData.REMOVE){
+            next.call(LineTokenData.REMOVE);
+            return;
+        }
         if(tokes==null||(!tokes.isEOF()&&tokes.isEmpty())){
             next.call(LineTokenData.EMPTY);
             return;
         }
+
         if(tokes instanceof MultiLine){
             processMultiLine((MultiLine) tokes, next);
         }else {

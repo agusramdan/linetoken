@@ -449,6 +449,64 @@ public abstract class LineTokenAbstract implements LineToken {
         return length()==0;
     }
 
+    @Override
+    public LineToken mapping(String newName, int... idxs) {
+        if(isEOF()){
+            return this;
+        }
+        String[] newContent= new String[idxs.length+1];
+        int newIdx=1;
+        for (int oldIdx : idxs) {
+            newContent[newIdx]=get(oldIdx);
+            newIdx++;
+        }
+        newContent[0]=newName;
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
+    }
+    public LineToken mapping(int... idxs) {
+        if(isEOF()){
+            return this;
+        }
+        String[] newContent= new String[idxs.length];
+        int newIdx=0;
+        for (int oldIdx : idxs) {
+            newContent[newIdx]=get(oldIdx);
+            newIdx++;
+        }
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
+    }
+    public LineToken merge(int from,LineToken other) {
+        int otherLength = other.length();
+        String[] newContent= new String[otherLength+from];
+        int newIdx=0;
+        while (newIdx < from){
+            newContent[newIdx]=get(newIdx);
+            newIdx++;
+        }
+        int otherIdx = 0;
+        while (otherIdx <otherLength){
+            newContent[newIdx]=get(otherIdx);
+            newIdx++;
+            otherIdx++;
+        }
+
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
+    }
+
+    public String maxLen(int idx, int len){
+        String text = get(idx);
+        if(StringUtils.notEmpty(text) && text.length() > len) {
+            return text.substring(0,len);
+        }
+        return text;
+    }
+    public String maxLenLeft(int idx, int len){
+        String text = get(idx);
+        if(StringUtils.notEmpty(text) && text.length() > len) {
+            return text.substring( text.length()-len);
+        }
+        return text;
+    }
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);

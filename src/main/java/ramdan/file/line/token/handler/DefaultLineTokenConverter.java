@@ -5,6 +5,7 @@ import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.data.LineTokenData;
 
 public class DefaultLineTokenConverter implements LineTokenConverter {
+    public static final DefaultLineTokenConverter DEFAULT = new DefaultLineTokenConverter();
     @Override
     public LineToken convert(Line line) {
         if(line==null){

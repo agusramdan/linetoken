@@ -19,6 +19,8 @@ public interface LineToken extends Comparable<LineToken>,Tokens{
     String getTagname();
     String getValue();
     String get(int index);
+    String maxLen(int idx, int len);
+    String maxLenLeft(int idx, int len);
     int getInt(int index);
     int getInt(int index, IntegerConversionErrorHandler handler);
     double getDouble(int index);
@@ -49,4 +51,7 @@ public interface LineToken extends Comparable<LineToken>,Tokens{
     boolean equalTokens(LineToken lt);
 
     int compareTo(LineToken right, int ... idxs);
+    LineToken mapping(String newName, int ...idxs);
+    LineToken mapping(int ...idxs);
+    LineToken merge(int from, LineToken lineToken);
 }
