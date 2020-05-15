@@ -117,11 +117,13 @@ public final class LineTokenData extends LineTokenAbstract implements Traceable,
             this.tokens[idx]=token(t);
             idx ++;
         }
+        source= (Line) in.readObject();
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal(out);
         out.writeObject(tokens);
+        out.writeObject(source);
     }
 
     public LineTokenData(){
