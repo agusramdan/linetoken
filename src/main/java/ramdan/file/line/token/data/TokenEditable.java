@@ -273,6 +273,14 @@ public class TokenEditable extends LineTokenBase {
         }
         return com;
     }
+    public void tagMapping(LineToken lineToken,String ... tagToken){
+        for (int i = 0; i < tagToken.length; i++) {
+            if(lineToken.equal(0,tagToken[i])){
+                this.set(i+1,lineToken.getValue());
+            }
+        }
+
+    }
     private class AmountDoubleConversionErrorHandler implements DoubleConversionErrorHandler {
         public double handle(String string) {
             try {
