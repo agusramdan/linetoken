@@ -171,6 +171,7 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
         Set<String> tag;
     }
 
+
     class DataSampleCapture extends MappingContentLineTokenHandler implements OutputLineTokenHandler{
         public DataSampleCapture() {
             super(new DefaultMultiLineTokenFilter("token",tokenStart,tokenEnd,"\\w*"), true);
@@ -186,7 +187,12 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
 
         @Setter
         private File baseDirectoryOutput;
-
+        @Setter
+        private String tagdelimiter=null;
+        @Setter
+        private String tokendelimiter=null;
+        @Setter
+        private boolean printLine;
         @Setter
         String extension;
         private boolean found;

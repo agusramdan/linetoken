@@ -161,6 +161,12 @@ public class DocSampleHandlerFactory extends AbstractHandlerFactory {
 
         @Setter
         private File baseDirectoryOutput;
+        @Setter
+        private String tagdelimiter=null;
+        @Setter
+        private String tokendelimiter=null;
+        @Setter
+        private boolean printLine;
 
         @Setter
         String extension;

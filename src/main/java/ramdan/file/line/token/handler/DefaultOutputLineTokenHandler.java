@@ -10,7 +10,10 @@ import java.util.zip.GZIPOutputStream;
 public class DefaultOutputLineTokenHandler implements OutputLineTokenHandler , Destroyable {
     @Getter
     private boolean destroyed = false;
-
+    @Setter
+    private String tagdelimiter=null;
+    @Setter
+    private String tokendelimiter=null;
     @Setter
     private boolean printLine;
 
@@ -86,7 +89,7 @@ public class DefaultOutputLineTokenHandler implements OutputLineTokenHandler , D
     @Override
     public Tokens process(LineToken lineToken) {
         ensureReady();
-        lineToken.println(printStream,printLine);
+        lineToken.println(printStream,tagdelimiter,tokendelimiter,printLine);
         return lineToken;
     }
 
