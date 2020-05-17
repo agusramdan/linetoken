@@ -2,6 +2,7 @@ package ramdan.file.line.token.handler;
 
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.data.LineTokenData;
 
 public class DefaultLineTokenConverter implements LineTokenConverter {
@@ -12,9 +13,11 @@ public class DefaultLineTokenConverter implements LineTokenConverter {
             return LineTokenData.EMPTY;
         }
         if(line.isEOF()){
-            return LineTokenData.EOF;
+            return LineTokenData.newEOF(line);
         }
-
+        if(line== LineData.REMOVE){
+            return LineTokenData.REMOVE;
+        }
         return LineTokenData.parse(line);
     }
 }
