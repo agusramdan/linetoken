@@ -1,5 +1,7 @@
 package ramdan.file.line.token.handler;
 
+import lombok.Setter;
+import lombok.val;
 import ramdan.file.line.token.StreamUtils;
 import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.listener.LineListener;
@@ -10,25 +12,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Setter
 public class DefaultFileHandler implements FileHandler<Tokens> ,Runnable{
 
     private File input;
     private List<LineTokenHandler> list;
-    public void setInput(File input) {
-        this.input = input;
-    }
-
-    public void setList(List<LineTokenHandler> list) {
-        this.list = list;
-    }
+    private LineTokenConverter converter;
 
     @Override
     public void process(File input, Callback<Tokens> callback) {
-        //OutputLineTokenHandler outputLineTokenHandler = null;
         try{
             DelegateLineTokenHandler handler = new DelegateLineTokenHandler(true,list);
             handler.setNext(callback);
-            LineListener listener = new TokensCallbackLineListener(handler);
+            val listener = new TokensCallbackLineListener(handler,converter);
             if(input != null){
                 String fileName=input.getName();
                 if(fileName.endsWith(".gz")){
