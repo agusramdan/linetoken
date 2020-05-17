@@ -12,8 +12,20 @@ public class TokensCallbackLineListener implements LineListener {
     private Callback<Tokens> handler;
     private LineTokenConverter converter;
     public TokensCallbackLineListener(Callback<Tokens> handler) {
+        this(handler,null);
+    }
+
+    public TokensCallbackLineListener(Callback<Tokens> handler, LineTokenConverter converter) {
         this.handler = handler;
-        converter = DefaultLineTokenConverter.DEFAULT;
+        setConverter(converter); ;
+    }
+
+    public void setConverter(LineTokenConverter converter) {
+        if(converter==null) {
+            converter = DefaultLineTokenConverter.DEFAULT;
+            return;
+        }
+        this.converter = converter;
     }
 
     @Override

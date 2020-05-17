@@ -22,6 +22,9 @@ public final class LineTokenData extends LineTokenAbstract implements Traceable,
         if(line == LineData.REMOVE){
             return REMOVE;
         }
+        if(line.isEmpty()){
+            return EMPTY;
+        }
         LineTokenData lt = parse(line.getSource(),null,null,line.getNo(),line.toString());
         lt.setSource(line);
         return lt;
