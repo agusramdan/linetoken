@@ -17,12 +17,15 @@ public class TokensCallbackLineListener implements LineListener {
 
     public TokensCallbackLineListener(Callback<Tokens> handler, LineTokenConverter converter) {
         this.handler = handler;
-        setConverter(converter); ;
+        if(converter==null) {
+            this.converter = DefaultLineTokenConverter.DEFAULT;
+        }else {
+            this.converter= converter;
+        }
     }
 
     public void setConverter(LineTokenConverter converter) {
         if(converter==null) {
-            converter = DefaultLineTokenConverter.DEFAULT;
             return;
         }
         this.converter = converter;
