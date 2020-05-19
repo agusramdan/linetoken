@@ -16,6 +16,7 @@ public interface LineToken extends Comparable<LineToken>,Tokens{
     long timestamp();
     Line getSource();
     boolean isEOF();
+
     String getTagname();
     String getValue();
     String get(int index);
@@ -54,4 +55,6 @@ public interface LineToken extends Comparable<LineToken>,Tokens{
     LineToken mapping(String newName, int ...idxs);
     LineToken mapping(int ...idxs);
     LineToken merge(int from, LineToken lineToken);
+    boolean isTagname(String string);
+    LineToken addTagname(String name);
 }

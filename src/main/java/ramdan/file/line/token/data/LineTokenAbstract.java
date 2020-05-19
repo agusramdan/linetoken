@@ -493,6 +493,23 @@ public abstract class LineTokenAbstract implements LineToken {
         return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
     }
 
+    @Override
+    public boolean isTagname(String string) {
+        return equal(0,string);
+    }
+
+    @Override
+    public LineToken addTagname(String name) {
+        int lengthContent=this.length();
+        String[] newContent= new String[lengthContent+1];
+        newContent[0]=name;
+        for (int s = 0,t=1; s <lengthContent ; t++) {
+            newContent[t]=get(s);
+            s=t;
+        }
+        return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
+    }
+
     public String maxLen(int idx, int len){
         String text = get(idx);
         if(StringUtils.notEmpty(text) && text.length() > len) {
