@@ -73,7 +73,7 @@ public class FilterComplex implements Config {
         this(null,new RegexMatchRule(start),new RegexMatchRule(end),remove,new RegexMatchRule[0]);
     }
     public FilterComplex(String start, String end,  FilterComplex... childs) {
-        this(null,new RegexMatchRule(start),new RegexMatchRule(end),false,new RegexMatchRule[0]);
+        this(null,new RegexMatchRule(start),new RegexMatchRule(end),false,new RegexMatchRule[0],childs);
     }
     public FilterComplex(String start, String end, boolean remove, String tags, FilterComplex... childs) {
         this(null,new RegexMatchRule(start),new RegexMatchRule(end),remove,RegexMatchRule.rule(tags),childs);
