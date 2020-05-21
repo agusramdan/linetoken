@@ -1,16 +1,15 @@
 package ramdan.file.line.token.handler;
 
-import lombok.Setter;
-import lombok.val;
 import ramdan.file.line.token.*;
-import ramdan.file.line.token.data.LineTokenData;
-import ramdan.file.line.token.data.MultiLineData;
+import ramdan.file.line.token.callback.Callback;
+import ramdan.file.line.token.callback.CallbackChain;
+import ramdan.file.line.token.callback.DefaultCallback;
 import ramdan.file.line.token.data.Traceable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DelegateLineTokenHandler implements CallbackChain<Tokens,Tokens>  {
+public class DelegateLineTokenHandler implements CallbackChain<Tokens,Tokens> {
     private AdapterLineTokensHandler tail;
     private AdapterLineTokensHandler head;
     private Callback<Tokens> next;

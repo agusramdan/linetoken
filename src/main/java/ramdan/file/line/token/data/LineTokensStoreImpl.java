@@ -3,7 +3,7 @@ package ramdan.file.line.token.data;
 import lombok.Getter;
 import lombok.val;
 import ramdan.file.line.token.*;
-import ramdan.file.line.token.handler.Callback;
+import ramdan.file.line.token.callback.Callback;
 
 import java.io.*;
 import java.util.Iterator;

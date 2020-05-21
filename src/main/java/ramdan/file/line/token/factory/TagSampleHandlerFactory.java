@@ -1,4 +1,4 @@
-package ramdan.file.line.token.handler;
+package ramdan.file.line.token.factory;
 
 import lombok.AllArgsConstructor;
 import lombok.Setter;
@@ -8,6 +8,10 @@ import ramdan.file.line.token.*;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.DefaultMultiLineTokenFilter;
 import ramdan.file.line.token.filter.RegexMatchRule;
+import ramdan.file.line.token.callback.Callback;
+import ramdan.file.line.token.handler.LineTokenHandler;
+import ramdan.file.line.token.handler.MappingContentLineTokenHandler;
+import ramdan.file.line.token.handler.OutputLineTokenHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +19,7 @@ import java.io.PrintStream;
 import java.util.*;
 
 /**
- * ramdan.file.line.token.handler.TagSampleHandlerFactory
+ * ramdan.file.line.token.factory.TagSampleHandlerFactory
  */
 public class TagSampleHandlerFactory extends AbstractHandlerFactory {
 
@@ -172,7 +176,7 @@ public class TagSampleHandlerFactory extends AbstractHandlerFactory {
     }
 
 
-    class DataSampleCapture extends MappingContentLineTokenHandler implements OutputLineTokenHandler{
+    class DataSampleCapture extends MappingContentLineTokenHandler implements OutputLineTokenHandler {
         public DataSampleCapture() {
             super(new DefaultMultiLineTokenFilter("token",tokenStart,tokenEnd,"\\w*"), true);
         }

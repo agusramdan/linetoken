@@ -3,9 +3,10 @@ import lombok.val;
 import ramdan.file.line.token.config.FileConfigHolder;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.data.Statistic;
+import ramdan.file.line.token.factory.AbstractHandlerFactory;
+import ramdan.file.line.token.factory.DocSampleHandlerFactory;
+import ramdan.file.line.token.factory.TagSampleHandlerFactory;
 import ramdan.file.line.token.filter.FilterComplex;
-import ramdan.file.line.token.filter.MultiLineTokenFilter;
-import ramdan.file.line.token.filter.RegexMatchRule;
 import ramdan.file.line.token.handler.*;
 
 
@@ -272,13 +273,13 @@ public class Main {
             if(StringUtils.isEmpty(parameters.get("-ox"))){
                 parameters.put("-ox",".spl");
             }
-            parameters.put("-hf",TagSampleHandlerFactory.class.getName());
+            parameters.put("-hf", TagSampleHandlerFactory.class.getName());
         }
 
         if(StringUtils.notEmpty(parameters.get("-dvf"))||
                 StringUtils.notEmpty(parameters.get("-dv"))||
                 StringUtils.notEmpty(parameters.get("-dtxv"))){
-            parameters.put("-hf",DocSampleHandlerFactory.class.getName());
+            parameters.put("-hf", DocSampleHandlerFactory.class.getName());
         }
 
 

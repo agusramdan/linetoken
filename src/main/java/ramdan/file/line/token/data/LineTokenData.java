@@ -79,9 +79,17 @@ public final class LineTokenData extends LineTokenAbstract implements Traceable,
     public static LineTokenData newInstance(String file ,Integer line, String ... tokens){
         return new LineTokenData(file,line,null,null,tokens);
     }
+
+    public static LineTokenData newInstance(String file,String tokenDelimiter,Integer line, String ... tokens){
+        return new LineTokenData(file,line,tokenDelimiter,tokenDelimiter,tokens);
+    }
+    public static LineTokenData newInstance(String file,String tagDelimiter,String tokenDelimiter,Integer line, String ... tokens){
+        return new LineTokenData(file,line,tagDelimiter,tokenDelimiter,tokens);
+    }
     public static LineTokenData newInstance(Integer line, String ... tokens){
         return new LineTokenData(line,null,null,tokens);
     }
+
     public static LineTokenData newInstance(String ... tokens){
         return new LineTokenData(null,null,null,tokens);
     }

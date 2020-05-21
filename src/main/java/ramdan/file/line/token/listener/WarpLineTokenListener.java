@@ -1,7 +1,8 @@
-package ramdan.file.line.token.handler;
+package ramdan.file.line.token.listener;
 
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
+import ramdan.file.line.token.handler.LineTokenHandler;
 import ramdan.file.line.token.listener.LineListener;
 import ramdan.file.line.token.listener.LineTokenListener;
 

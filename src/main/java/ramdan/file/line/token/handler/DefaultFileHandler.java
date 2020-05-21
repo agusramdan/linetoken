@@ -4,8 +4,7 @@ import lombok.Setter;
 import lombok.val;
 import ramdan.file.line.token.StreamUtils;
 import ramdan.file.line.token.Tokens;
-import ramdan.file.line.token.listener.LineListener;
-import ramdan.file.line.token.listener.LineTokenCallbackLineListener;
+import ramdan.file.line.token.callback.Callback;
 import ramdan.file.line.token.listener.TokensCallbackLineListener;
 
 import java.io.File;

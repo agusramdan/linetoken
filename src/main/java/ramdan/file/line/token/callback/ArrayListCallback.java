@@ -1,8 +1,10 @@
-package ramdan.file.line.token.handler;
+package ramdan.file.line.token.callback;
+
+import ramdan.file.line.token.callback.Callback;
 
 import java.util.ArrayList;
 
-public class ArrayListCallback<T> implements Callback<T>{
+public class ArrayListCallback<T> implements Callback<T> {
 
     private ArrayList<T> arrayList;
 

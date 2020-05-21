@@ -1,6 +1,7 @@
 package ramdan.file.line.token.handler;
 
-import java.io.File;
+import ramdan.file.line.token.callback.Callback;
+
 import java.util.Collection;
 
 public interface HandlerFactory {

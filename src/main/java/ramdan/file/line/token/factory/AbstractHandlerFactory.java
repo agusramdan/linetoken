@@ -1,9 +1,11 @@
-package ramdan.file.line.token.handler;
+package ramdan.file.line.token.factory;
+
+import ramdan.file.line.token.handler.HandlerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class AbstractHandlerFactory  implements HandlerFactory{
+public abstract class AbstractHandlerFactory  implements HandlerFactory {
 
     protected Map<String,String> parameters = new HashMap<>();
     private boolean ready=false;
