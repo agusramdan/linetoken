@@ -8,14 +8,17 @@ import ramdan.file.line.token.listener.LineTokenListener;
 
 public class WarpLineTokenListener implements LineTokenListener {
 
-    private final LineTokenHandler handler;
+    private final LineTokenHandler[] handler;
 
-    public WarpLineTokenListener(LineTokenHandler handler) {
+    public WarpLineTokenListener(LineTokenHandler ... handler) {
         this.handler = handler;
     }
 
     @Override
     public void event(LineToken lineToken) {
-        handler.process(lineToken);
+        for (int i = 0 ;i <handler.length ; i++) {
+            handler[i].process(lineToken);
+        }
+
     }
 }

@@ -1,6 +1,7 @@
 package ramdan.file.line.token.data;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.val;
 import lombok.var;
 import ramdan.file.line.token.Line;
@@ -13,6 +14,8 @@ import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -20,11 +23,16 @@ import java.util.regex.Pattern;
  * immutable class
  * except source
  */
-public abstract class LineTokenAbstract implements LineToken {
+public abstract class LineTokenAbstract implements LineToken ,TokenDataType{
     private static final long serialversionUID = 20191125;
 
     static boolean stringTrim = true;
     static boolean stringNullToEmpty=true;
+
+    private Map<Integer,DataType> dataTypeMapping = new HashMap<>();
+    @Setter @Getter
+    private DataType  dataTypeDefault;
+
     public static String get(LineToken  token , int idx){
         if(token == null){
             return stringNullToEmpty?"":null;
@@ -105,6 +113,8 @@ public abstract class LineTokenAbstract implements LineToken {
         file = readUTF(in);
         start = (Integer) in.readObject();
         end = (Integer)in.readObject();
+        dataTypeMapping = (Map<Integer, DataType>) in.readObject();
+        dataTypeDefault = (DataType) in.readObject();
     }
     protected void writeUTF(ObjectOutput out,String string) throws IOException{
         if(string==null){
@@ -121,6 +131,8 @@ public abstract class LineTokenAbstract implements LineToken {
         writeUTF(out,file);
         out.writeObject(start);
         out.writeObject(end);
+        out.writeObject(dataTypeMapping);
+        out.writeObject(dataTypeDefault);
     }
     public LineTokenAbstract() {
         this(null, null,null,null,null);
@@ -524,6 +536,22 @@ public abstract class LineTokenAbstract implements LineToken {
         }
         return text;
     }
+
+    @Override
+    public DataType getDataType(int index) {
+        DataType dataType = dataTypeMapping.get(index);
+        if(dataType!=null){
+            return dataType;
+        }
+        if(dataTypeDefault!=null){
+            return dataTypeDefault;
+        }
+        return DataType.STRING;
+    }
+    public void setDataType(int index,DataType dt) {
+        this.dataTypeMapping.put(index,dt);
+    }
+
     public static class LineTokenEOF extends LineTokenAbstract{
         public LineTokenEOF(String file, Integer start, Integer end) {
             super(file, start, end);
