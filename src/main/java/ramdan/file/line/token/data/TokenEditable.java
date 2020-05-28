@@ -137,6 +137,7 @@ public class TokenEditable extends LineTokenBase {
         setAmount(idxAmount,idxCredit,targetAmount);
         return targetAmount;
     }
+
     public double addAmount(int idxAmount, int idxCredit, double targetAmount){
         //var targetAmount = getAmount(idxAmount,idxCredit);
         targetAmount+=getAmount(idxAmount,idxCredit);
@@ -144,9 +145,17 @@ public class TokenEditable extends LineTokenBase {
         setAmount(idxAmount,idxCredit,targetAmount);
         return targetAmount;
     }
+
     public double getAmount(int idxAmount){
         return getDouble(idxAmount,amountHandler);
     }
+
+    public double addAmount(int idxAmount,double d){
+        val from = getDouble(idxAmount,amountHandler)+d;
+        setAmount(idxAmount,from);
+        return from;
+    }
+
     private double addAmount0(int idxAmount, TokenEditable from){
         var targetAmount = getAmount(idxAmount);
         targetAmount+=from.getAmount(idxAmount);
