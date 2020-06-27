@@ -1,6 +1,5 @@
 package ramdan.file.line.token.config;
 
-import lombok.val;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StreamUtils;
 import ramdan.file.line.token.StringUtils;
@@ -8,10 +7,9 @@ import ramdan.file.line.token.listener.LineTokenListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class FileConfigHolder {
     private final static List<LineToken> configLineToken = new ArrayList<>();
@@ -37,6 +35,10 @@ public class FileConfigHolder {
     }
 
     public static void load(File config) throws IOException {
+        StreamUtils.readLine(config,configListener);
+    }
+
+    public static void load(InputStream config) throws IOException {
         StreamUtils.readLine(config,configListener);
     }
 
