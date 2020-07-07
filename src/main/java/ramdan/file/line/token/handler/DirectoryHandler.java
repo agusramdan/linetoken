@@ -2,6 +2,7 @@ package ramdan.file.line.token.handler;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import ramdan.file.line.token.StreamUtils;
 import ramdan.file.line.token.filter.FilterComplex;
@@ -15,10 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
+@Slf4j
 public class DirectoryHandler implements Runnable{
 
     @Getter
@@ -58,9 +60,18 @@ public class DirectoryHandler implements Runnable{
 
     protected void submit( Runnable handler){
         data.add(executorService.submit(handler));
+        int i = 0;
+        while (data.size()>128 && i < 128){
+            if(data.get(i).isDone()){
+                data.remove(i);
+            }else {
+                i++;
+            }
+        }
     }
 
     protected void waitUntilFinish(){
+        log.info("Wait process {} ",data.size());
         int i=0;
         while (!data.isEmpty()){
             try {
@@ -76,6 +87,16 @@ public class DirectoryHandler implements Runnable{
             }
             if(i>=data.size()){
                 i=0;
+                log.info("Wait process {} ",data.size());
+                if(data.size()==1){
+                    try {
+                        data.get(0).get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -83,9 +104,12 @@ public class DirectoryHandler implements Runnable{
     public void run() {
         prepare();
         val fileList = getFilesInput();
+        log.info("Found file : {}",fileList.size());
         for (File fileInput:fileList) {
+            log.info("Submit file : {}",fileInput);
             submit(createFileHandler(fileInput));
         }
+
         waitUntilFinish();
     }
 

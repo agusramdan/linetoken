@@ -32,7 +32,6 @@ public class TokensCallbackLineListener implements LineListener {
 
     @Override
     public void event(Line line) {
-        LineTokenData.parse(line);
         handler.call(converter.convert(line));
     }
 }

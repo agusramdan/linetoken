@@ -122,6 +122,11 @@ public class LineTokensBlockSimple extends AbstractLineTokensBlock implements Li
     public static class FactoryImpl implements LineTokensBlock.Factory {
 
         @Override
+        public LineTokensBlock newInstance(String name, String startTagname, String endTagname, Mode mode) {
+            return newInstance(name,startTagname,endTagname);
+        }
+
+        @Override
         public LineTokensBlock newInstance(String name, String startTagname, String endTagname) {
             return new LineTokensBlockSimple(name,startTagname,endTagname);
         }

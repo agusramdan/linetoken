@@ -7,7 +7,6 @@ import ramdan.file.line.token.listener.DelegateLineListener;
 import ramdan.file.line.token.listener.LineListener;
 import ramdan.file.line.token.listener.LineTokenListener;
 
-import javax.security.auth.Destroyable;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;

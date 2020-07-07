@@ -1,61 +1,63 @@
 package ramdan.file.line.token.data;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import ramdan.file.line.token.*;
-import ramdan.file.line.token.callback.Callback;
 
 import java.io.*;
 import java.util.Iterator;
 
-public class LineTokensStoreImpl implements LineTokens,Closeable, Callback<LineToken> , Destroyable {
-
+@Slf4j
+public class LineTokensStoreBinary extends LineTokensStoreAbstract {
+    private static File createTempFile() throws IOException{
+        return File.createTempFile("LineTokensStoreBin_"+(System.currentTimeMillis()/3600000)+"_","_lts.bin");
+    }
     private File file;// store file
     private ObjectOutputStream outputStream;
-    private LineToken head;
-    private LineToken tail;
+
     @Getter
     private boolean destroyed;
-
-    public LineTokensStoreImpl(File file) {
+    public LineTokensStoreBinary() throws IOException{
+        this(createTempFile());
+    }
+    public LineTokensStoreBinary(File file) {
         this.file = file;
+        log.debug("Create file {}",file);
     }
     private void ensureOpen() throws IOException {
         if(outputStream==null)
         outputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-    }
-    private int count =0;
 
-    public boolean empty(){
-        return count==0;
     }
-    public int count(){
-        return count;
-    }
+
     public long length(){
         return file.length();
     }
-    public LineToken head(){
-        return head;
+
+    protected  void addToStore(LineToken lt) throws IOException{
+        ensureOpen();
+        outputStream.writeObject(lt);
+        outputStream.flush();
+        outputStream.reset();
     }
-    public LineToken tail(){
-        return tail;
+
+    @Override
+    public void release() {
+        // not support release
+        //StreamUtils.closeIgnore(outputStream);
+        //outputStream = null;
     }
-    public void add(LineToken lt) {
-        try {
-            ensureOpen();
-            outputStream.writeObject(lt);
-            outputStream.flush();
-            count++;
-            if (head == null) {
-                head = lt;
-            }
-            tail = lt;
-        }catch (IOException e){
-            throw new RuntimeException(e);
-        }
+
+    @Override
+    public void addAll(LineTokensStore lts) throws IOException{
+        addAll0(lts);
     }
+
     public void addAll(Iterable<LineToken>it) throws IOException {
+        addAll0(it);
+    }
+    private void addAll0(Iterable<LineToken>it) throws IOException {
         ensureOpen();
         for (LineToken lt : it) {
             add(lt);
@@ -75,8 +77,16 @@ public class LineTokensStoreImpl implements LineTokens,Closeable, Callback<LineT
         StreamUtils.closeIgnore(outputStream);
         file.delete();
         destroyed=true;
+        log.debug("Delete file {}",file);
     }
-
+    @Override
+    public void finalize() {
+        try {
+            this.destroy();
+        } catch (DestroyFailedException e) {
+            log.error("Filed",e);
+        }
+    }
     @Override
     public void call(LineToken lineToken) {
         add(lineToken);
@@ -97,6 +107,7 @@ public class LineTokensStoreImpl implements LineTokens,Closeable, Callback<LineT
         delete();
     }
 
+
     private class IteratorImpl implements Iterator<LineToken> {
         private LineToken next;
         private ObjectInputStream ois;
@@ -106,10 +117,11 @@ public class LineTokensStoreImpl implements LineTokens,Closeable, Callback<LineT
             try {
                 ois= new ObjectInputStream(new BufferedInputStream(new FileInputStream(file)));
             }catch (java.io.EOFException e){
+                log.warn("No data at file {}",file);
                 eof=true;
                 ois= null;
             }catch (IOException e) {
-                e.printStackTrace();
+                log.error("Error Open file",e);
             }
             eof = ois==null;
         }
@@ -127,7 +139,7 @@ public class LineTokensStoreImpl implements LineTokens,Closeable, Callback<LineT
                     ois= null;
                     return;
                 } catch (IOException |java.lang.OutOfMemoryError |ClassNotFoundException e) {
-                    System.err.printf("Loaded %d \n",loaded);
+                    log.error("Loaded {}",loaded);
                     throw new RuntimeException(e);
                 }
                 if(next==null){

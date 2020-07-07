@@ -5,37 +5,45 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
-import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.LineTokensBlock;
+import ramdan.file.line.token.*;
 import ramdan.file.line.token.handler.Sortable;
-import ramdan.file.line.token.StreamUtils;
 import ramdan.file.line.token.filter.LineTokenFilter;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 
 @Slf4j
-public class LineTokensBlockStore extends AbstractLineTokensBlock implements LineTokensBlock,Sortable<LineToken> {
+public class LineTokensBlockStore extends AbstractLineTokensBlock implements LineTokensBlock,Sortable<LineToken> , Destroyable {
 
     @Getter
     private Sort sortStatus = Sort.UNSORT;
 
-    private LineTokensStoreImpl contents;
+    @Getter
+    private Mode mode;
+
+    private LineTokensStore contents;
     @Setter
     private int limit =1024*4;
 
-    private LineTokensStoreImpl create() throws IOException {
-        return new LineTokensStoreImpl(File.createTempFile("LineTokensStoreImpl",".lts"));
+    private LineTokensStore create() throws IOException {
+        if(mode==Mode.TEXT){
+            return new LineTokensStoreText();
+        }
+        return new LineTokensStoreBinary();
     }
     public LineTokensBlockStore(String name, String defaultStart, String defaultEnd) {
+        this(name,defaultEnd,defaultEnd,Mode.BINARY);
+    }
+    public LineTokensBlockStore(String name, String defaultStart, String defaultEnd,Mode mode) {
         super(name, defaultStart, defaultEnd);
+        this.mode=mode;
         try {
             contents= create();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public LineTokensBlockStore(String defaultStart, String defaultEnd) {
@@ -49,6 +57,7 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
 
     @Override
     public void sort(Comparator<LineToken> comparator) {
+        log.info("LineTokensBlockStore#Sort");
         if (comparator == null) return;
         it = null;
         val count = contents.count();
@@ -63,7 +72,7 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
             perPart=(count/part)+(mod!=0?1:0);
         }
         log.debug("count : {} , Part : {} , Per Part: {} , mod : {}",count,part,perPart,mod);
-        val presorting = new LinkedList<LineTokensStoreImpl>();
+        val presorting = new LinkedList<LineTokensStore>();
         try {
             val tmp = new ArrayList<LineToken>(perPart+1);
             Iterator<LineToken> i = contents.iterator();
@@ -75,22 +84,23 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
                     pre.addAll(tmp);
                     tmp.clear();
                     presorting.add(pre);
+                    pre.release();
                     log.debug("pre sorting : {}  ",presorting.size());
                 }
             }
             while (presorting.size()>1){
                 val p1 =presorting.pop();
                 if(p1.empty()){
-                    System.out.println("p1 empty ");
+                    log.debug("p1 empty ");
                     continue;
                 }
                 val p2 =presorting.pop();
                 if(p2.empty()){
-                    System.out.println("p2 empty ");
+                    log.debug("p2 empty ");
                     presorting.add(p1);
                     continue;
                 }
-                LineTokensStoreImpl m ;
+                LineTokensStore m ;
                 // chek mungkin tidak perlu soring hanya copy saja  memper cepat prosess
                 if(comparator.compare(p1.tail(),p2.head()) <= 0){
                     log.debug("move p2 to p1");
@@ -109,17 +119,18 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
                     StreamUtils.destroyIgnore(p1);
                     StreamUtils.destroyIgnore(p2);
                     if(m.empty()){
-                        System.out.println("merge empty ");
+                        log.warn("merge empty ");
                     }
                 }
                 presorting.add(m);
+                m.release();
                 log.debug("merge remaining {}",presorting.size());
             }
         }catch (IOException e){
-            e.printStackTrace();
+            log.error("error",e);
         }
         StreamUtils.closeIgnore(contents);
-        contents.delete();
+        StreamUtils.destroyIgnore(contents);
         contents=presorting.pop();
         sortStatus = Sort.SORTED;
     }
@@ -143,10 +154,6 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
 
     @Override
     public boolean replace(LineToken lineTokenOld, LineToken lineTokenNew) {
-//        int idx = contents.indexOf(lineTokenOld);
-//        if (idx > 0) {
-//            contents.set(idx, lineTokenNew);
-//        }
         return false;
     }
 
@@ -189,14 +196,30 @@ public class LineTokensBlockStore extends AbstractLineTokensBlock implements Lin
         return State.DISK;
     }
 
+    @Override
+    public void destroy() throws DestroyFailedException {
+        StreamUtils.destroyIgnore(contents);
+        contents=null;
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return contents==null;
+    }
+
     public static class FactoryImpl implements Factory {
-        @Setter
+        @Setter @Getter
         int limit;
-        @Override
-        public LineTokensBlock newInstance(String name, String startTagname, String endTagname) {
-            val n= new LineTokensBlockStore(name,startTagname,endTagname);
+        @Setter @Getter
+        private Mode mode=Mode.BINARY;
+
+        public LineTokensBlock newInstance(String name, String startTagname, String endTagname,Mode mode) {
+            val n= new LineTokensBlockStore(name,startTagname,endTagname,mode);
             n.limit=limit;
             return n;
+        }
+        public LineTokensBlock newInstance(String name, String startTagname, String endTagname) {
+            return newInstance(name,startTagname,endTagname,mode);
         }
 
         @Override

@@ -29,8 +29,11 @@ public interface LineTokensBlock extends Tokens{
     enum State{
         MEMORY, DISK
     }
-
+    enum Mode{
+        BINARY, TEXT
+    }
     interface Factory{
+        LineTokensBlock newInstance(String name, String startTagname, String endTagname,Mode mode);
         LineTokensBlock newInstance(String name, String startTagname, String endTagname);
         LineTokensBlock newInstance(String name);
     }
