@@ -67,13 +67,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>github</id>
-            <name>GitHub agusramdan Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/agusramdan/public</url>
-        </repository>
-    </distributionManagement>
+
     <repositories>
         <repository>
             <id>central</id>
@@ -84,7 +78,7 @@
         <repository>
             <id>github</id>
             <name>GitHub agusramdan Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/agusramdan/public</url>
+            <url>https://maven.pkg.github.com/agusramdan/linetoken</url>
         </repository>
     </repositories>
 </project>
