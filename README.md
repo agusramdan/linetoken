@@ -1,5 +1,7 @@
 # Line Token 
 
+![Java CI with Maven](https://github.com/agusramdan/linetoken/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 Line token ini parser untuk Convergys IRB (RBM) atau Geneva format file.
 
 ## Definition
@@ -46,27 +48,6 @@ PRODUCT_NAME|Sleep with enemy|
 BENDPRODUCT|
 
 ```
-
-## query
-
-### Simple data query
-
-```text
-get PRODUCT_ID with value = 1234
-
-```
-
-### Block data query
-
-```text
-struc DOC=DOCSTART_1->DOCEND
-struc PRODUCT=BSTARTPRODUCT->BENDPRODUCT 
-get PRODUCT with PRODUCT_ID = 1234
-union
-get DATA with ID = 4
-
-```
-
 
 ## Tag mapping
 
