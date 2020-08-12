@@ -1,8 +1,6 @@
 package ramdan.file.line.token.data;
 
 import lombok.val;
-import static org.junit.Assert.*;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,6 +8,8 @@ import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StreamUtils;
 
 import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 public class LineTokensStoreTextTest {
 

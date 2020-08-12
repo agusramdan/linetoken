@@ -3,6 +3,7 @@ package ramdan.file.line.token.data;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringUtils;
+
 import java.io.*;
 import java.util.Arrays;
 

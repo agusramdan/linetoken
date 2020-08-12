@@ -3,7 +3,6 @@ package ramdan.file.line.token;
 import org.junit.Test;
 import ramdan.file.line.token.data.LineTokenData;
 
-
 import static org.junit.Assert.*;
 
 

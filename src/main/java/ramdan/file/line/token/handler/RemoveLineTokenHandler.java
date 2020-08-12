@@ -3,7 +3,6 @@ package ramdan.file.line.token.handler;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;
-import ramdan.file.line.token.filter.DefaultMultiLineTokenFilter;
 import ramdan.file.line.token.filter.MultiLineTokenFilter;
 
 /**

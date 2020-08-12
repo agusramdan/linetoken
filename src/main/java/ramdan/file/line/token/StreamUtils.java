@@ -1,8 +1,8 @@
 package ramdan.file.line.token;
 
 import lombok.extern.slf4j.Slf4j;
-import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.callback.Callback;
+import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.listener.DelegateLineListener;
 import ramdan.file.line.token.listener.LineListener;
 import ramdan.file.line.token.listener.LineTokenListener;

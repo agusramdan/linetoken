@@ -3,13 +3,10 @@ package ramdan.file.line.token.data;
 import lombok.Getter;
 import lombok.val;
 import ramdan.file.line.token.Line;
-import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.StringUtils;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.io.Serializable;
-import java.lang.ref.WeakReference;
 
 /**
  * immutable class

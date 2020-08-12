@@ -1,7 +1,6 @@
 package ramdan.file.line.token.listener;
 
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.handler.LineTokenHandler;
 
 public class DefaultLineTokenListener implements LineTokenListener{
 

@@ -1,7 +1,5 @@
 package ramdan.file.line.token.data;
 
-import lombok.val;
-import static org.junit.Assert.*;
 import org.junit.Test;
 
 public class LineTokensVirtualizerImplTest {

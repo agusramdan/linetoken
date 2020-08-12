@@ -1,9 +1,7 @@
 package ramdan.file.line.token.handler;
 
 import lombok.Setter;
-import lombok.val;
 import org.apache.commons.lang.StringEscapeUtils;
-import ramdan.file.line.token.Line;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.Tokens;
 import ramdan.file.line.token.data.LineTokenData;

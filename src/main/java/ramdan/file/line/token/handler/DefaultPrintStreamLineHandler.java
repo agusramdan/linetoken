@@ -1,14 +1,13 @@
 package ramdan.file.line.token.handler;
 
-import lombok.Getter;
-import lombok.Setter;
 import ramdan.file.line.token.DestroyFailedException;
 import ramdan.file.line.token.Destroyable;
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.StreamUtils;
 
-import java.io.*;
-import java.util.zip.GZIPOutputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.PrintStream;
 
 public class DefaultPrintStreamLineHandler implements LineHandler, Closeable, Destroyable {
 

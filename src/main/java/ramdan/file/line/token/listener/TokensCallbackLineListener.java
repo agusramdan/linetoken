@@ -2,7 +2,6 @@ package ramdan.file.line.token.listener;
 
 import ramdan.file.line.token.Line;
 import ramdan.file.line.token.Tokens;
-import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.callback.Callback;
 import ramdan.file.line.token.handler.DefaultLineTokenConverter;
 import ramdan.file.line.token.handler.LineTokenConverter;
