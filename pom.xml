@@ -6,7 +6,7 @@
 
     <groupId>ramdan.file</groupId>
     <artifactId>linetoken</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.2-SNAPSHOT</version>
     <properties>
         <java.version>1.8</java.version>
         <resource.delimiter>@</resource.delimiter>
@@ -14,8 +14,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-    </properties>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+             
+    </properties>         
     <build>
         <plugins>
             <plugin>
