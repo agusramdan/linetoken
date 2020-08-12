@@ -25,4 +25,4 @@ jobs:
       run: mvn -B package --file pom.xml
     
     - name: Deploy to Github Packages
-      run: mvn -X -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dmaven.wagon.http.pool=false -DskipTests=true -Dregistry=https://maven.pkg.github.com/agusramdan/public -Dtoken=${{ secrets.github_token }} deploy
+      run: mvn -X -B -Dmaven.wagon.http.pool=false -DskipTests=true -Dgithub.user=${{ secrets.GITHUB_REPOSITORY_OWNER }} -Dgithub.password=${{ secrets.github_token }} -s settings.xml deploy 
