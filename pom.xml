@@ -14,8 +14,9 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-    </properties>
+        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+             
+    </properties>         
     <build>
         <plugins>
             <plugin>
