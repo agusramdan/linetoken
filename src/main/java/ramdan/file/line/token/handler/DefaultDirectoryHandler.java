@@ -51,7 +51,9 @@ public class DefaultDirectoryHandler extends DirectoryHandler implements Runnabl
         }
     }
     protected List<File> getFilesInput(){
-        if(singeOutputFile) return Arrays.asList(inputFile);
+        if(singeOutputFile) {
+            return Arrays.asList(inputFile);
+        }
         return super.getFilesInput();
     }
     @Override
