@@ -43,6 +43,9 @@ public class DirectoryHandler implements Runnable{
     @Getter
     private String outputExtension;
 
+    @Setter
+    private long limitFileLength=-1;
+
     private List<Future> data = new ArrayList<>();
 
     private boolean ready=false;
@@ -144,7 +147,10 @@ public class DirectoryHandler implements Runnable{
 
 
     protected List<File> getFilesInput(){
-       return StreamUtils.listFilesRecursive(inputDirectory,  new ExtensionFileFilter(parameters.get("-ix")));
+
+       return StreamUtils.listFilesRecursive(inputDirectory,
+               (limitFileLength>0)? new LengthExtFileFilter(limitFileLength,parameters.get("-ix"))
+               : new ExtensionFileFilter(parameters.get("-ix")));
     }
     protected void addFilterHandlers(List<LineTokenHandler> list)  {
         if (!parameters.containsKey("-fcs")) {
@@ -178,6 +184,42 @@ public class DirectoryHandler implements Runnable{
                     list.add((LineTokenHandler) obj);
                 }
             }
+        }
+    }
+
+    public static class LengthExtFileFilter implements FileFilter{
+        private long limit;
+        private String[] extensions;
+
+        public LengthExtFileFilter(long limit, String inputExtension) {
+            this.extensions = inputExtension!=null? inputExtension.trim().split("\\s*,\\s*"):new String[0];
+            this.limit = limit;
+        }
+
+        public boolean accept(String name){
+            if(extensions.length==0) return true;
+            for (String str: extensions) {
+                if(name.endsWith(str)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean accept(File file) {
+            if(file.isDirectory()) return true;
+            if(file.isFile()){
+                if(accept(file.getName())){
+                    if(file.length()>limit){
+                        log.info("File out of limit {} {}",limit,file);
+                        return false;
+                    }else {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
     public static class ExtensionFileFilter implements FileFilter{
