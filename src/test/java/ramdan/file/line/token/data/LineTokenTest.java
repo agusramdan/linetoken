@@ -1,12 +1,12 @@
 package ramdan.file.line.token.data;
 
-import static org.junit.Assert.*;
 import org.junit.Test;
 import ramdan.file.line.token.LineToken;
-import ramdan.file.line.token.data.LineTokenData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+
+import static org.junit.Assert.*;
 
 
 public class LineTokenTest {

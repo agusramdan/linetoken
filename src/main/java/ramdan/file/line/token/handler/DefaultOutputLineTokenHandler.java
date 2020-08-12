@@ -4,7 +4,10 @@ import lombok.Getter;
 import lombok.Setter;
 import ramdan.file.line.token.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.zip.GZIPOutputStream;
 
 public class DefaultOutputLineTokenHandler implements OutputLineTokenHandler , Destroyable {

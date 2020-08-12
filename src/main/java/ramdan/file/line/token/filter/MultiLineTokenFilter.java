@@ -1,7 +1,5 @@
 package ramdan.file.line.token.filter;
 
-import ramdan.file.line.token.LineToken;
-
 public interface MultiLineTokenFilter {
     String name();
     int length();

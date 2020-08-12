@@ -1,11 +1,7 @@
 package ramdan.file.line.token.handler;
 
-import ramdan.file.line.token.*;
+import ramdan.file.line.token.Line;
 import ramdan.file.line.token.data.LineData;
-import ramdan.file.line.token.data.Traceable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DelegateLineHandler implements LineHandler {
 

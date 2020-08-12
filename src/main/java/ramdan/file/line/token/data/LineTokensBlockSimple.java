@@ -4,10 +4,13 @@ import lombok.Getter;
 import lombok.val;
 import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.LineTokensBlock;
-import ramdan.file.line.token.handler.Sortable;
 import ramdan.file.line.token.filter.LineTokenFilter;
+import ramdan.file.line.token.handler.Sortable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class LineTokensBlockSimple extends AbstractLineTokensBlock implements LineTokensBlock,Sortable<LineToken> {
 

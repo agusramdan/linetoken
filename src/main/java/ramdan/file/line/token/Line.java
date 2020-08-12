@@ -1,7 +1,5 @@
 package ramdan.file.line.token;
 
-import ramdan.file.line.token.handler.IntegerConversionErrorHandler;
-
 import java.io.File;
 import java.io.PrintStream;
 import java.io.Serializable;

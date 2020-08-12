@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import lombok.var;
 import ramdan.file.line.token.*;
-import ramdan.file.line.token.handler.Sortable;
 import ramdan.file.line.token.filter.LineTokenFilter;
+import ramdan.file.line.token.handler.Sortable;
 
 import java.io.IOException;
 import java.io.Serializable;

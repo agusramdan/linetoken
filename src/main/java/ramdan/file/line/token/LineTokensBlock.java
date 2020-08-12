@@ -2,7 +2,6 @@ package ramdan.file.line.token;
 
 import ramdan.file.line.token.filter.LineTokenFilter;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 

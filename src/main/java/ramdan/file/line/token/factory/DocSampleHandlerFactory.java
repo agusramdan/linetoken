@@ -9,13 +9,18 @@ import ramdan.file.line.token.data.LineData;
 import ramdan.file.line.token.data.LineTokenData;
 import ramdan.file.line.token.filter.DefaultMultiLineTokenFilter;
 import ramdan.file.line.token.filter.RegexMatchRule;
-import ramdan.file.line.token.handler.*;
+import ramdan.file.line.token.handler.LineTokenHandler;
+import ramdan.file.line.token.handler.MappingContentLineTokenHandler;
+import ramdan.file.line.token.handler.OutputLineTokenHandler;
 import ramdan.file.line.token.listener.LineListener;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * ramdan.file.line.token.factory.TagSampleHandlerFactory

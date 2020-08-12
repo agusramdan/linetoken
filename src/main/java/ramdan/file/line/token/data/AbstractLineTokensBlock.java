@@ -6,7 +6,8 @@ import ramdan.file.line.token.LineToken;
 import ramdan.file.line.token.LineTokensBlock;
 import ramdan.file.line.token.handler.Sortable;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.Iterator;
 
 public abstract class AbstractLineTokensBlock implements LineTokensBlock,Sortable<LineToken>{
     @Setter
