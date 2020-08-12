@@ -29,6 +29,6 @@ jobs:
       with:
         java-version: 1.8
     - name: Publish to GitHub Packages
-      run: mvn -B -X package deploy -Dmaven.wagon.http.pool=false -DskipTests=true
+      run: mvn -B -e package deploy -Dmaven.wagon.http.pool=false -DskipTests=true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
