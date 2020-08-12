@@ -6,7 +6,7 @@
 
     <groupId>ramdan.file</groupId>
     <artifactId>linetoken</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.1.2</version>
     <properties>
         <java.version>1.8</java.version>
         <resource.delimiter>@</resource.delimiter>
