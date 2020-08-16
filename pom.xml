@@ -6,7 +6,7 @@
 
     <groupId>ramdan.file</groupId>
     <artifactId>linetoken</artifactId>
-    <version>1.7.0</version>
+    <version>1.7.1-SNAPSHOT</version>
     <properties>
         <java.version>1.7</java.version>
         <resource.delimiter>@</resource.delimiter>
@@ -15,8 +15,38 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-
     </properties>
+    <scm>
+        <url>https://github.com/agusramdan/linetoken.git</url>
+    </scm>
+    <profiles>
+        <profile>
+            <id>codecoverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
