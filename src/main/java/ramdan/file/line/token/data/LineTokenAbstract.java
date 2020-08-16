@@ -486,6 +486,9 @@ public abstract class LineTokenAbstract implements LineToken ,TokenDataType{
         return newLineToken(getFileName(),getStart(),getEnd(),timestamp,newContent);
     }
     public LineToken merge(int from,LineToken other) {
+        if(this.isEOF()){
+            return other;
+        }
         int otherLength = other.length();
         String[] newContent= new String[otherLength+from];
         int newIdx=0;
@@ -557,11 +560,11 @@ public abstract class LineTokenAbstract implements LineToken ,TokenDataType{
 
         @Override
         protected LineToken newLineToken(String fileName, Integer start, Integer end, String... tokens) {
-            return null;
+            return this;
         }
         @Override
         protected LineToken newLineToken(String fileName, Integer start, Integer end, long timestamp, String... tokens) {
-            return null;
+            return this;
         }
 
         @Override
