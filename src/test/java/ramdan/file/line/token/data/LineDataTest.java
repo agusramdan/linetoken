@@ -86,4 +86,18 @@ public class LineDataTest {
         assertFalse(StringUtils.containAllIgnoreCase("NO IN","no","net"));
     }
 
+    @Test
+    public void containIgnoreCase_true(){
+        LineTokenData lineToken = LineTokenData.newInstance("NO IN");
+
+        assertTrue(lineToken.containIgnoreCase(0,"in","no","not","found"));
+    }
+
+    @Test
+    public void containIgnoreCase_false(){
+        LineTokenData lineToken = LineTokenData.newInstance("NO IN");
+
+        assertFalse(lineToken.containIgnoreCase(0,"not","found"));
+    }
+
 }
