@@ -36,6 +36,29 @@ public class LineTokenAbstractTest {
         LineTokenAbstract.stringNullToEmpty = true;
         assertEquals("",LineTokenAbstract.tokenCheck(null));
     }
+    @Test
+    public void token() {
+        assertEquals("Hi_Agus", LineTokenAbstract.token("Hi_Agus"));
+    }
+    @Test
+    public void token_nullParameter(){
+        LineTokenAbstract.stringNullToEmpty = false;
+        assertNull(LineTokenAbstract.token(null));
+
+        LineTokenAbstract.stringNullToEmpty = true;
+        assertEquals("",LineTokenAbstract.token(null));
+    }
+
+    @Test
+    public void token_stringTrim(){
+        val save = LineTokenAbstract.stringTrim;
+        LineTokenAbstract.stringTrim = true;
+        try {
+            assertEquals("Haloo",LineTokenAbstract.token("Haloo "));
+        }finally {
+            LineTokenAbstract.stringTrim=save;
+        }
+    }
 
     @Test
     public void newEOF(){
@@ -44,6 +67,20 @@ public class LineTokenAbstractTest {
         assertNotNull(lientoken);
         assertNull(lientoken.getFileName());
         assertNull(lientoken.getStart());
+        assertNull(lientoken.getSource());
+
+        assertTrue(lientoken.isEOF());
+        assertTrue(lientoken.isEmpty());
+        assertEquals(0,lientoken.length());
+
+        assertEquals(lientoken,lientoken.copyLineToken());
+        assertEquals(lientoken,lientoken.replaceToken(0,""));
+        assertEquals(lientoken,lientoken.mapping("tagname",1));
+        assertEquals(lientoken,lientoken.mapping(1));
+        assertEquals(lientoken,lientoken.merge(1,lientoken));
+
+        assertEquals("",lientoken.get(0));
+        assertEquals("",lientoken.getValue());
     }
 
     @Test
