@@ -13,6 +13,13 @@ public class LineTokenComparator implements Comparator<LineToken> {
 
     @Override
     public int compare(LineToken left, LineToken right) {
+
+        if(left==null) {
+            return right==null ? 0: -1;
+        }else
+        if(right==null){
+            return 1;
+        }
         return left.compareTo(right,idxs) ;
     }
 }
