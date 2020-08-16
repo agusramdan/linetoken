@@ -5,7 +5,7 @@ import org.junit.Test;
 public class LineTokensVirtualizerImplTest {
 
     @Test
-    public void Factory_newInstance(){
+    public void Factory_newInstance() {
 //        val factory = new LineTokensVirtualizerImpl.FactoryImpl();
 //        val halo = factory.newInstance("HALLO");
 //
@@ -14,7 +14,7 @@ public class LineTokensVirtualizerImplTest {
     }
 
     @Test
-    public void Factory_newInstance2(){
+    public void Factory_newInstance2() {
 //        val factory = new LineTokensVirtualizerImpl.FactoryImpl();
 //        val halo = factory.newInstance("HALLO_BOYS");
 //
@@ -23,7 +23,7 @@ public class LineTokensVirtualizerImplTest {
     }
 
     @Test
-    public void addContent(){
+    public void addContent() {
 //        val factory = new LineTokensVirtualizerImpl.FactoryImpl();
 //        val halo = factory.newInstance("HALLO_BOYS");
 //
@@ -37,7 +37,7 @@ public class LineTokensVirtualizerImplTest {
     }
 
     @Test
-    public void addContent_save_to_disk(){
+    public void addContent_save_to_disk() {
 //        val factory = new LineTokensVirtualizerImpl.FactoryImpl();
 //        factory.setDefaultThreshold(2);
 //        val halo = factory.newInstance("HALLO_BOYS");

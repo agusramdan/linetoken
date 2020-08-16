@@ -14,15 +14,15 @@ import static org.junit.Assert.*;
 public class LineTokensStoreTextTest {
 
     private LineTokensStoreText store;
-    private LineToken halo = LineTokenData.newInstance("HALLO","data");
+    private LineToken halo = LineTokenData.newInstance("HALLO", "data");
 
     @Before
-    public void before() throws IOException{
+    public void before() throws IOException {
         store = new LineTokensStoreText();
     }
 
     @After
-    public void after(){
+    public void after() {
         StreamUtils.destroyIgnore(store);
     }
 
@@ -31,12 +31,13 @@ public class LineTokensStoreTextTest {
 
         store.add(halo);
 
-        assertEquals(1,store.count);
+        assertEquals(1, store.count);
     }
+
     @Test
     public void Store_empty_zero() throws IOException {
 
-        assertEquals(0,store.count);
+        assertEquals(0, store.count);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class LineTokensStoreTextTest {
 
         store.add(halo);
 
-        assertEquals(halo,store.head());
+        assertEquals(halo, store.head());
     }
 
     @Test
@@ -58,7 +59,7 @@ public class LineTokensStoreTextTest {
 
         store.add(halo);
 
-        assertEquals(halo,store.tail());
+        assertEquals(halo, store.tail());
     }
 
     @Test
@@ -68,12 +69,13 @@ public class LineTokensStoreTextTest {
 
         assertTrue(store.iterator().hasNext());
     }
+
     @Test
     public void Store_iteratorHasNext_data() throws IOException {
 
         store.add(halo);
 
-        assertEquals(halo,store.iterator().next());
+        assertEquals(halo, store.iterator().next());
     }
 
     @Test
@@ -84,6 +86,6 @@ public class LineTokensStoreTextTest {
 
         newStore.addAll(store);
 
-        assertEquals(halo,newStore.iterator().next());
+        assertEquals(halo, newStore.iterator().next());
     }
 }

@@ -9,10 +9,10 @@ import ramdan.file.line.token.handler.MappingContentLineTokenHandler;
 
 public class MappingContentLineTokenHandlerTest {
     @Test
-    public void endTest(){
-        val mapping  =  new MappingContentLineTokenHandler( new DefaultMultiLineTokenFilter(
-                "Invoice","DOCSTART_\\w*","DOCEND","TREATMENT_TYPE","CUSTOMERTYPE","ACCOUNTNO","B(START|END)GROUP","B(START|END)PRODITEM"
-        ),false);
+    public void endTest() {
+        val mapping = new MappingContentLineTokenHandler(new DefaultMultiLineTokenFilter(
+                "Invoice", "DOCSTART_\\w*", "DOCEND", "TREATMENT_TYPE", "CUSTOMERTYPE", "ACCOUNTNO", "B(START|END)GROUP", "B(START|END)PRODITEM"
+        ), false);
 
         mapping.process(LineTokenData.parse("DOCSTART_1"));
 

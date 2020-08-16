@@ -12,7 +12,7 @@ public class FilterComplexTest {
 
     @Test
     public void read_Root() throws IOException {
-        FilterComplex filterComplex= FilterComplex.read(new File("src/test/resources/filter-root.cfg"));
+        FilterComplex filterComplex = FilterComplex.read(new File("src/test/resources/filter-root.cfg"));
         assertFalse(filterComplex.remove);
         assertNotNull(filterComplex.start);
         assertTrue(filterComplex.start.isMatchRule("START"));
@@ -22,7 +22,7 @@ public class FilterComplexTest {
 
     @Test
     public void read_RootChild() throws IOException {
-        FilterComplex filterComplex= FilterComplex.read(new File("src/test/resources/filter-root-childs.cfg"));
+        FilterComplex filterComplex = FilterComplex.read(new File("src/test/resources/filter-root-childs.cfg"));
 
         assertFalse(filterComplex.remove);
         assertNotNull(filterComplex.start);
@@ -35,7 +35,6 @@ public class FilterComplexTest {
         assertTrue(filterComplex.childs[0].start.isMatchRule("C_1_START"));
         assertNotNull(filterComplex.childs[0].end);
         assertTrue(filterComplex.childs[0].end.isMatchRule("C_1_END"));
-
 
 
         assertFalse(filterComplex.childs[0].childs[0].remove);

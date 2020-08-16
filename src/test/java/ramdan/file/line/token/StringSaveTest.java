@@ -9,91 +9,91 @@ import static org.junit.Assert.*;
 public class StringSaveTest {
 
     @Before
-    public void before(){
-        StringSave.stringSave=false;
-        StringSave.stringIntern=false;
+    public void before() {
+        StringSave.stringSave = false;
+        StringSave.stringIntern = false;
     }
 
     @After
-    public void after(){
+    public void after() {
         StringSave.clear();
     }
 
     @Test
-    public void testStringSave_False(){
+    public void testStringSave_False() {
         StringSave.save("data");
-        assertEquals(0,StringSave.count());
+        assertEquals(0, StringSave.count());
     }
 
     @Test
-    public void testSaveClean_null(){
-        StringSave.stringSave=true;
+    public void testSaveClean_null() {
+        StringSave.stringSave = true;
 
         StringSave.save("data");
 
-        assertEquals(1,StringSave.count());
+        assertEquals(1, StringSave.count());
         assertNull(StringSave.save(null));
     }
 
     @Test
-    public void testSave_null(){
+    public void testSave_null() {
         assertNull(StringSave.save(null));
     }
 
     @Test
-    public void testSave_empty(){
+    public void testSave_empty() {
 
-        assertSame("",StringSave.save(""));
+        assertSame("", StringSave.save(""));
     }
 
     @Test
-    public void testArgs_save_true(){
+    public void testArgs_save_true() {
         StringSave.args("-save");
 
         assertTrue(StringSave.stringSave);
     }
 
     @Test
-    public void testArgs_save_false(){
+    public void testArgs_save_false() {
         StringSave.args("-nosave");
 
         assertFalse(StringSave.stringSave);
     }
 
     @Test
-    public void testArgs_intern_true(){
+    public void testArgs_intern_true() {
         StringSave.args("-intern");
 
         assertTrue(StringSave.stringIntern);
     }
 
     @Test
-    public void testSave_data(){
-        StringSave.stringSave=true;
+    public void testSave_data() {
+        StringSave.stringSave = true;
         String data = StringSave.save("data");
 
-        assertSame(data,StringSave.save(new String("data")));
+        assertSame(data, StringSave.save("data"));
     }
 
     @Test
-    public void testSave_intern(){
-        StringSave.stringSave=true;
-        StringSave.stringIntern=true;
+    public void testSave_intern() {
+        StringSave.stringSave = true;
+        StringSave.stringIntern = true;
         String data = StringSave.save("data");
 
-        assertSame(data,StringSave.save(new String("data")));
-        assertEquals(0,StringSave.count());
+        assertSame(data, StringSave.save("data"));
+        assertEquals(0, StringSave.count());
     }
 
     @Test
-    public void testPrint(){
-        StringSave.stringSave=true;
-        StringSave.stringIntern=false;
+    public void testPrint() {
+        StringSave.stringSave = true;
+        StringSave.stringIntern = false;
         String data = StringSave.save("data");
 
         StringSave.print(null);
 
-        assertSame(data,StringSave.save(new String("data")));
-        assertEquals(1,StringSave.count());
+        assertSame(data, StringSave.save("data"));
+        assertEquals(1, StringSave.count());
     }
 }
